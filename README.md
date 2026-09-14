@@ -88,6 +88,6 @@ Ces résultats doivent être interprétés avec prudence, car une compétition s
 
 ## 👥 Auteur et date
 
-**Auteurs :** Maxime, Loan, Moussa , Mouhamedou et  Ousmane
+**Auteurs :** Moussa, Loan, Maxime , Mouhamedou et  Ousmane
 
 **Date :** septembre 2026
