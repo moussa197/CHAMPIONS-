@@ -1,0 +1,12 @@
+# Ignorer tous les fichiers CSV
+*.csv
+
+# Ignorer Python
+__pycache__/
+*.pyc
+
+# Ignorer Jupyter
+.ipynb_checkpoints/
+
+# Ignorer output
+output/
