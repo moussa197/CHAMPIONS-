@@ -120,7 +120,7 @@ ucl = games[games["competition_id"] == "CL"].sort_values("date")
    ```
    Dans VS Code, choisir le noyau `.venv` en haut à droite du notebook.
 3. Télécharger les datasets Kaggle et placer les CSV dans `data/`.
-4. Lancer Jupyter et ouvrir `analyse/EDA.ipynb` :
+4. Lancer Jupyter et ouvrir `analyse/EDA_v2.ipynb` (après avoir exécuté les notebooks `v2_*`, voir « Ordre d'exécution ») :
    ```bash
    python -m jupyter notebook
    ```
