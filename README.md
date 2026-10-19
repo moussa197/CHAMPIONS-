@@ -29,9 +29,15 @@ Projet de data science qui analyse l'historique de la Ligue des Champions (UEFA 
 ```
 CHAMPIONS-/
 ├── analyse/
-│   └── EDA.ipynb                    # Analyse exploratoire (EDA)
+│   ├── EDA.ipynb                    # Analyse exploratoire (EDA)
+│   ├── v2_elo.ipynb                 # Elo avant chaque match de C1 (Moussa)
+│   ├── v2_joueurs.ipynb             # Variables joueurs par équipe et par match (Mouhamedou)
+│   ├── v2_fatigue.ipynb             # Repos et calendrier par club et par match (Ousmane)
+│   ├── v2_participants.ipynb        # Clubs engagés en 2026-2027
+│   └── EDA_v2.ipynb                 # EDA v2 : assemblage des tableaux, corrélations, conclusion (Loan)
 ├── notebooks/                       # Notebooks de modélisation (à venir)
 ├── data/                            # Datasets CSV (non versionnés, voir ci-dessous)
+├── output/                          # CSV produits par les notebooks (non versionnés)
 ├── .gitignore
 └── README.md
 ```
@@ -120,6 +126,17 @@ Les notebooks lisent les données avec des chemins relatifs (`../data/games.csv`
 
 ---
 
+## ▶️ Ordre d'exécution
+
+Les CSV de `output/` ne sont pas commités : chacun les régénère en local, dans cet ordre.
+
+1. `analyse/v2_elo.ipynb` → `output/elo_par_match.csv` (une ligne par match de C1) ;
+2. `analyse/v2_joueurs.ipynb` → `output/joueurs_par_match.csv` (une ligne par équipe et par match) ;
+3. `analyse/v2_fatigue.ipynb` → `output/fatigue_par_match.csv` (une ligne par club et par match) ;
+4. `analyse/EDA_v2.ipynb` → `output/eda_matchs_c1.csv` (une ligne par match de C1, toutes les variables assemblées).
+
+---
+
 ## 🔬 Méthodologie
 
 1. **Analyse exploratoire** : structure des données, qualité (valeurs manquantes, doublons, scores faux, phases), répartition des résultats, avantage du terrain, taux de victoire, lien entre Elo et résultat.
@@ -133,25 +150,23 @@ Les notebooks lisent les données avec des chemins relatifs (`../data/games.csv`
 
 ## 📈 Résultats de l'EDA
 
-Sur les 1 871 matchs de Ligue des Champions (2012-2026), après correction des 8 scores avec tirs au but :
+EDA v2 (`analyse/EDA_v2.ipynb`) sur la table assemblée de 1 871 matchs de Ligue des Champions (2012-2026). Variable à expliquer : `score_domicile` (1 = victoire à domicile, 0,5 = nul, 0 = défaite). Les écarts sont calculés domicile − extérieur.
 
-- **Résultats :** 47,6 % de victoires à domicile, 20,0 % de nuls, 32,4 % de victoires à l'extérieur ;
-- **Buts :** 1,72 en moyenne pour l'équipe à domicile contre 1,34 à l'extérieur (+0,38) ;
-- **Avantage du terrain et public :** l'écart de buts domicile − extérieur tombe à **0,00** lors de la saison à huis clos (2020-2021, Covid), contre 0,2 à 0,6 les autres saisons ;
-- **Taux de victoire** (clubs avec au moins 30 matchs) : Bayern Munich 69 %, Real Madrid 64 %, Liverpool 60 %, FC Barcelone 60 %, Arsenal 58 % ;
-- **Elo :** la règle « le meilleur Elo gagne » a raison dans **56 %** des matchs, contre 48 % pour « l'équipe à domicile gagne ». Le favori gagne 40 % des matchs quand l'écart d'Elo est inférieur à 50 points, et 79 % quand il dépasse 300 points ;
-- **Niveau avant 2026-2027** (Elo au 1er septembre 2026) : Arsenal, Manchester City, Bayern Munich, Barcelone, Inter, Real Madrid, Paris SG.
+- **Lien avec le résultat (Spearman) :** écart de valeur d'effectif **0,446**, écart d'Elo global **0,416**, écart d'Elo C1 **0,404**, écart d'Elo championnat **0,22**. L'Elo championnat compare mal des clubs de pays différents ;
+- **Elo par quintile :** le score moyen à domicile passe de **0,32** (écart d'Elo global le plus défavorable) à **0,84** (écart le plus favorable) ;
+- **Repos** (écart borné à ±14 jours) : lien négatif, Pearson **-0,221**, Spearman **-0,216**. Contre-intuitif : les clubs plus reposés sont surtout ceux qui jouent moins de compétitions et sont moins forts (repos / matchs sur 30 jours -0,73, repos / valeur d'effectif -0,63) ;
+- **Variables redondantes :** Elo global / Elo championnat **0,79**, Elo global / Elo C1 **0,70**, Elo global / valeur d'effectif **0,67**, valeur d'effectif / matchs sur 30 jours **0,57**, rotation C1 / meilleur buteur C1 **-0,51**. Elles ne doivent pas être utilisées ensemble dans un modèle sans précaution.
 
-**Principales limites :** 20 % des matchs n'ont pas d'Elo, aucun match de 2026-2027 n'est disponible, et l'Elo mélange championnat et Ligue des Champions.
+**Principales limites :** la rotation C1 n'est connue que pour 710 matchs sur 1 871, l'écart de repos contient des trous de couverture (d'où la borne à ±14 jours), il n'y a aucune donnée météo, et les corrélations ne contrôlent pas le niveau des équipes (corrélation ≠ causalité).
 
-**Question à poursuivre :** l'Elo prédit-il aussi bien les matchs de Ligue des Champions que ceux de championnat, et faut-il le compléter par des indicateurs propres à la C1 ?
+**Question à poursuivre :** l'Elo global seul fait-il mieux que 56 % sur les matchs de C1, et la valeur d'effectif ajoute-t-elle quelque chose une fois l'Elo pris en compte ?
 
 ---
 
 ## 🚧 Avancement
 
 - [x] Collecte des données
-- [x] Analyse exploratoire
+- [x] Analyse exploratoire (EDA v2 : assemblage des tableaux Elo, joueurs et fatigue fait, `output/eda_matchs_c1.csv`)
 - [ ] Nettoyage et harmonisation (scores et phases déjà corrigés dans l'EDA)
 - [ ] Feature engineering
 - [ ] Entraînement des modèles
