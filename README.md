@@ -153,17 +153,23 @@ Les CSV de `output/` ne sont pas commités : chacun les régénère en local, da
 
 ## 📈 Résultats de l'EDA
 
-EDA v2 (`analyse/EDA_v2.ipynb`) sur la table assemblée de 1 871 matchs de Ligue des Champions (2012-2026). Variable à expliquer : `score_domicile` (1 = victoire à domicile, 0,5 = nul, 0 = défaite). Les écarts sont calculés domicile − extérieur.
+### EDA v1 (`analyse/EDA.ipynb`) — 1 871 matchs de C1 (2012-2026), après correction des 8 scores avec tirs au but
 
-- **Lien avec le résultat (Spearman) :** écart de valeur d'effectif **0,446**, écart d'Elo global **0,416**, écart d'Elo C1 **0,404**, écart d'Elo championnat **0,22**. L'Elo championnat compare mal des clubs de pays différents ;
-- **Elo par quintile :** le score moyen à domicile passe de **0,32** (écart d'Elo global le plus défavorable) à **0,84** (écart le plus favorable) ;
-- **Repos** (écart borné à ±14 jours) : lien négatif, Pearson **-0,221**, Spearman **-0,216**. Contre-intuitif : les clubs plus reposés sont surtout ceux qui jouent moins de compétitions et sont moins forts (repos / matchs sur 30 jours -0,73, repos / valeur d'effectif -0,63) ;
-- **Variables redondantes :** Elo global / Elo championnat **0,79**, Elo global / Elo C1 **0,70**, Elo global / valeur d'effectif **0,67**, valeur d'effectif / matchs sur 30 jours **0,57**, rotation C1 / meilleur buteur C1 **-0,51**. Elles ne doivent pas être utilisées ensemble dans un modèle sans précaution.
+- **Résultats :** 47,6 % de victoires à domicile, 20,0 % de nuls, 32,4 % de victoires à l'extérieur ;
+- **Avantage du terrain et public :** l'écart de buts domicile − extérieur tombe à **0,00** lors de la saison à huis clos (2020-2021, Covid), contre 0,2 à 0,6 les autres saisons ;
+- **Elo :** la règle « le meilleur Elo gagne » a raison dans **56 %** des matchs, contre 48 % pour « l'équipe à domicile gagne ».
 
-**Principales limites :** la rotation C1 n'est connue que pour 710 matchs sur 1 871, l'écart de repos contient des trous de couverture (d'où la borne à ±14 jours), il n'y a aucune donnée météo, et les corrélations ne contrôlent pas le niveau des équipes (corrélation ≠ causalité).
+### EDA v2 (`analyse/v2_*.ipynb` et `analyse/EDA_v2.ipynb`)
 
-**Question à poursuivre :** l'Elo global seul fait-il mieux que 56 % (référence selon l'EDA v1 (Elo officiel), non recalculée dans la v2) sur les matchs de C1, et la valeur d'effectif ajoute-t-elle quelque chose une fois l'Elo pris en compte ?
+- **Elo maison** (`v2_elo.ipynb`) : couvre **100 %** des matchs (contre 80 % pour l'Elo officiel) ; la règle « le meilleur Elo gagne » y atteint **56,0 %**. L'Elo championnat ne fait que **48,2 %** : il compare mal des clubs de pays différents ;
+- **Lien avec le résultat (Spearman) :** écart de valeur d'effectif **0,446**, écart d'Elo global **0,416**, écart d'Elo C1 **0,404**, écart d'Elo championnat **0,22** ;
+- **Elo par quintile :** le score moyen à domicile passe de **0,32** (écart d'Elo le plus défavorable) à **0,84** (écart le plus favorable) ;
+- **Repos :** aucun lien net avec le résultat (**-0,06**) une fois retirés les clubs dont le championnat manque dans les données ; le lien de départ (-0,22) venait de ce biais ;
+- **Variables redondantes :** Elo global / Elo championnat **0,79**, Elo global / Elo C1 **0,70**, Elo global / valeur d'effectif **0,67** : à ne pas utiliser ensemble sans précaution.
 
+**Principales limites :** aucun match de 2026-2027, la rotation C1 n'est connue que pour 710 matchs sur 1 871, aucune donnée météo, et les corrélations ne contrôlent pas le niveau des équipes (corrélation ≠ causalité).
+
+**Question à poursuivre :** un modèle fait-il mieux que la règle Elo (56 %), et la valeur d'effectif ajoute-t-elle quelque chose une fois l'Elo pris en compte ?
 ---
 
 ## 🚧 Avancement
