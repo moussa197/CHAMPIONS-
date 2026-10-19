@@ -11,7 +11,7 @@ Projet de data science qui analyse l'historique de la Ligue des Champions (UEFA 
 - **Question :** quels clubs ont le plus de chances de remporter la Ligue des Champions 2026-2027 ?
 - **Pourquoi :** passer d'un avis de supporter (« le Real gagne toujours ») à une estimation chiffrée et défendable, appuyée sur les données.
 - **Livrable :** un classement des 36 clubs engagés, avec une probabilité de titre pour chacun.
-- **Critère de réussite :** le modèle doit prédire les matchs mieux qu'une règle simple, sur des saisons qu'il n'a pas vues pendant l'entraînement. L'EDA a fixé la référence à battre : la règle « l'équipe avec le meilleur Elo gagne » a raison dans **56 %** des matchs.
+- **Critère de réussite :** le modèle doit prédire les matchs mieux qu'une règle simple, sur des saisons qu'il n'a pas vues pendant l'entraînement. Référence à battre : la règle « l'équipe avec le meilleur Elo gagne » a raison dans **56 %** des matchs selon l'EDA v1 (Elo officiel, `EloRatings.csv`, matchs où les deux Elo sont connus) (à recalculer sur la base de modélisation).
 
 ---
 
@@ -112,14 +112,17 @@ ucl = games[games["competition_id"] == "CL"].sort_values("date")
    git clone https://github.com/moussa197/CHAMPIONS-.git
    cd CHAMPIONS-
    ```
-2. Installer les dépendances (Python 3.10+ ou Anaconda) :
+2. Créer (ou réutiliser) l'environnement virtuel `.venv` du projet, l'activer, puis y installer les dépendances (Python 3.10+). Utiliser `python -m pip` et `python -m jupyter` garantit que les paquets et le notebook passent par le Python du `.venv` et non par une autre installation (Anaconda, Python système) :
    ```bash
-   pip install numpy pandas matplotlib scikit-learn xgboost jupyter
+   python -m venv .venv
+   # Windows : .venv\Scripts\activate    —    macOS / Linux : source .venv/bin/activate
+   python -m pip install pandas numpy matplotlib jupyter scikit-learn xgboost
    ```
+   Dans VS Code, choisir le noyau `.venv` en haut à droite du notebook.
 3. Télécharger les datasets Kaggle et placer les CSV dans `data/`.
 4. Lancer Jupyter et ouvrir `analyse/EDA.ipynb` :
    ```bash
-   jupyter notebook
+   python -m jupyter notebook
    ```
 
 Les notebooks lisent les données avec des chemins relatifs (`../data/games.csv`) : ils doivent être lancés depuis leur propre dossier.
@@ -143,7 +146,7 @@ Les CSV de `output/` ne sont pas commités : chacun les régénère en local, da
 2. **Nettoyage** : harmonisation des phases et des noms de clubs, conversion des dates, correction des scores avec tirs au but, gestion des valeurs manquantes.
 3. **Feature engineering** : Elo avant chaque match, forme récente (championnat et Europe), buts marqués/encaissés, expérience en Ligue des Champions, valeur marchande de l'effectif, confrontations directes.
 4. **Modélisation** : Random Forest et XGBoost pour prédire l'issue des matchs (victoire / nul / défaite), avec séparation chronologique entraînement / test (par exemple entraînement 2012-2022, test 2023-2025).
-5. **Évaluation** : accuracy, précision / rappel / F1, matrice de confusion, log loss et calibration des probabilités, comparaison avec la règle « le meilleur Elo gagne » (56 %).
+5. **Évaluation** : accuracy, précision / rappel / F1, matrice de confusion, log loss et calibration des probabilités, comparaison avec la règle « le meilleur Elo gagne » (56 % selon l'EDA v1 (Elo officiel), à recalculer sur la base de modélisation).
 6. **Simulation** : simulation de la saison 2026-2027 (phase de ligue puis phase finale) à partir des probabilités de match pour obtenir la probabilité de titre de chaque club.
 
 ---
@@ -159,7 +162,7 @@ EDA v2 (`analyse/EDA_v2.ipynb`) sur la table assemblée de 1 871 matchs de Ligue
 
 **Principales limites :** la rotation C1 n'est connue que pour 710 matchs sur 1 871, l'écart de repos contient des trous de couverture (d'où la borne à ±14 jours), il n'y a aucune donnée météo, et les corrélations ne contrôlent pas le niveau des équipes (corrélation ≠ causalité).
 
-**Question à poursuivre :** l'Elo global seul fait-il mieux que 56 % sur les matchs de C1, et la valeur d'effectif ajoute-t-elle quelque chose une fois l'Elo pris en compte ?
+**Question à poursuivre :** l'Elo global seul fait-il mieux que 56 % (référence selon l'EDA v1 (Elo officiel), non recalculée dans la v2) sur les matchs de C1, et la valeur d'effectif ajoute-t-elle quelque chose une fois l'Elo pris en compte ?
 
 ---
 
