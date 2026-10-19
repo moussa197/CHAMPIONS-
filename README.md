@@ -29,7 +29,7 @@ Projet de data science qui analyse l'historique de la Ligue des Champions (UEFA 
 ```
 CHAMPIONS-/
 ├── analyse/
-│   ├── EDA.ipynb                    # Analyse exploratoire (EDA)
+│   ├── EDA.ipynb                    # Analyse exploratoire (EDA v1)
 │   ├── v2_elo.ipynb                 # Elo avant chaque match de C1 (Moussa)
 │   ├── v2_joueurs.ipynb             # Variables joueurs par équipe et par match (Mouhamedou)
 │   ├── v2_fatigue.ipynb             # Repos et calendrier par club et par match (Ousmane)
