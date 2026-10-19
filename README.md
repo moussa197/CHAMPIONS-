@@ -11,7 +11,7 @@ Projet de data science qui analyse l'historique de la Ligue des Champions (UEFA 
 - **Question :** quels clubs ont le plus de chances de remporter la Ligue des Champions 2026-2027 ?
 - **Pourquoi :** passer d'un avis de supporter (« le Real gagne toujours ») à une estimation chiffrée et défendable, appuyée sur les données.
 - **Livrable :** un classement des 36 clubs engagés, avec une probabilité de titre pour chacun.
-- **Critère de réussite :** le modèle doit prédire les matchs mieux qu'une règle simple, sur des saisons qu'il n'a pas vues pendant l'entraînement. L'EDA a fixé la référence à battre : la règle « l'équipe avec le meilleur Elo gagne » a raison dans **56 %** des matchs.
+- **Critère de réussite :** le modèle doit prédire les matchs mieux qu'une règle simple, sur des saisons qu'il n'a pas vues pendant l'entraînement. Référence à battre : la règle « l'équipe avec le meilleur Elo gagne » a raison dans **56 %** des matchs selon l'EDA v1 (Elo officiel, `EloRatings.csv`, matchs où les deux Elo sont connus) (à recalculer sur la base de modélisation).
 
 ---
 
@@ -29,9 +29,15 @@ Projet de data science qui analyse l'historique de la Ligue des Champions (UEFA 
 ```
 CHAMPIONS-/
 ├── analyse/
-│   └── EDA.ipynb                    # Analyse exploratoire (EDA)
+│   ├── EDA.ipynb                    # Analyse exploratoire (EDA v1)
+│   ├── v2_elo.ipynb                 # Elo avant chaque match de C1 (Moussa)
+│   ├── v2_joueurs.ipynb             # Variables joueurs par équipe et par match (Mouhamedou)
+│   ├── v2_fatigue.ipynb             # Repos et calendrier par club et par match (Ousmane)
+│   ├── v2_participants.ipynb        # Clubs engagés en 2026-2027
+│   └── EDA_v2.ipynb                 # EDA v2 : assemblage des tableaux, corrélations, conclusion (Loan)
 ├── notebooks/                       # Notebooks de modélisation (à venir)
 ├── data/                            # Datasets CSV (non versionnés, voir ci-dessous)
+├── output/                          # CSV produits par les notebooks (non versionnés)
 ├── .gitignore
 └── README.md
 ```
@@ -106,17 +112,31 @@ ucl = games[games["competition_id"] == "CL"].sort_values("date")
    git clone https://github.com/moussa197/CHAMPIONS-.git
    cd CHAMPIONS-
    ```
-2. Installer les dépendances (Python 3.10+ ou Anaconda) :
+2. Créer (ou réutiliser) l'environnement virtuel `.venv` du projet, l'activer, puis y installer les dépendances (Python 3.10+). Utiliser `python -m pip` et `python -m jupyter` garantit que les paquets et le notebook passent par le Python du `.venv` et non par une autre installation (Anaconda, Python système) :
    ```bash
-   pip install numpy pandas matplotlib scikit-learn xgboost jupyter
+   python -m venv .venv
+   # Windows : .venv\Scripts\activate    —    macOS / Linux : source .venv/bin/activate
+   python -m pip install pandas numpy matplotlib jupyter scikit-learn xgboost
    ```
+   Dans VS Code, choisir le noyau `.venv` en haut à droite du notebook.
 3. Télécharger les datasets Kaggle et placer les CSV dans `data/`.
-4. Lancer Jupyter et ouvrir `analyse/EDA.ipynb` :
+4. Lancer Jupyter et ouvrir `analyse/EDA_v2.ipynb` (après avoir exécuté les notebooks `v2_*`, voir « Ordre d'exécution ») :
    ```bash
-   jupyter notebook
+   python -m jupyter notebook
    ```
 
 Les notebooks lisent les données avec des chemins relatifs (`../data/games.csv`) : ils doivent être lancés depuis leur propre dossier.
+
+---
+
+## ▶️ Ordre d'exécution
+
+Les CSV de `output/` ne sont pas commités : chacun les régénère en local, dans cet ordre.
+
+1. `analyse/v2_elo.ipynb` → `output/elo_par_match.csv` (une ligne par match de C1) ;
+2. `analyse/v2_joueurs.ipynb` → `output/joueurs_par_match.csv` (une ligne par équipe et par match) ;
+3. `analyse/v2_fatigue.ipynb` → `output/fatigue_par_match.csv` (une ligne par club et par match) ;
+4. `analyse/EDA_v2.ipynb` → `output/eda_matchs_c1.csv` (une ligne par match de C1, toutes les variables assemblées).
 
 ---
 
@@ -126,32 +146,36 @@ Les notebooks lisent les données avec des chemins relatifs (`../data/games.csv`
 2. **Nettoyage** : harmonisation des phases et des noms de clubs, conversion des dates, correction des scores avec tirs au but, gestion des valeurs manquantes.
 3. **Feature engineering** : Elo avant chaque match, forme récente (championnat et Europe), buts marqués/encaissés, expérience en Ligue des Champions, valeur marchande de l'effectif, confrontations directes.
 4. **Modélisation** : Random Forest et XGBoost pour prédire l'issue des matchs (victoire / nul / défaite), avec séparation chronologique entraînement / test (par exemple entraînement 2012-2022, test 2023-2025).
-5. **Évaluation** : accuracy, précision / rappel / F1, matrice de confusion, log loss et calibration des probabilités, comparaison avec la règle « le meilleur Elo gagne » (56 %).
+5. **Évaluation** : accuracy, précision / rappel / F1, matrice de confusion, log loss et calibration des probabilités, comparaison avec la règle « le meilleur Elo gagne » (56 % selon l'EDA v1 (Elo officiel), à recalculer sur la base de modélisation).
 6. **Simulation** : simulation de la saison 2026-2027 (phase de ligue puis phase finale) à partir des probabilités de match pour obtenir la probabilité de titre de chaque club.
 
 ---
 
 ## 📈 Résultats de l'EDA
 
-Sur les 1 871 matchs de Ligue des Champions (2012-2026), après correction des 8 scores avec tirs au but :
+### EDA v1 (`analyse/EDA.ipynb`) — 1 871 matchs de C1 (2012-2026), après correction des 8 scores avec tirs au but
 
 - **Résultats :** 47,6 % de victoires à domicile, 20,0 % de nuls, 32,4 % de victoires à l'extérieur ;
-- **Buts :** 1,72 en moyenne pour l'équipe à domicile contre 1,34 à l'extérieur (+0,38) ;
 - **Avantage du terrain et public :** l'écart de buts domicile − extérieur tombe à **0,00** lors de la saison à huis clos (2020-2021, Covid), contre 0,2 à 0,6 les autres saisons ;
-- **Taux de victoire** (clubs avec au moins 30 matchs) : Bayern Munich 69 %, Real Madrid 64 %, Liverpool 60 %, FC Barcelone 60 %, Arsenal 58 % ;
-- **Elo :** la règle « le meilleur Elo gagne » a raison dans **56 %** des matchs, contre 48 % pour « l'équipe à domicile gagne ». Le favori gagne 40 % des matchs quand l'écart d'Elo est inférieur à 50 points, et 79 % quand il dépasse 300 points ;
-- **Niveau avant 2026-2027** (Elo au 1er septembre 2026) : Arsenal, Manchester City, Bayern Munich, Barcelone, Inter, Real Madrid, Paris SG.
+- **Elo :** la règle « le meilleur Elo gagne » a raison dans **56 %** des matchs, contre 48 % pour « l'équipe à domicile gagne ».
 
-**Principales limites :** 20 % des matchs n'ont pas d'Elo, aucun match de 2026-2027 n'est disponible, et l'Elo mélange championnat et Ligue des Champions.
+### EDA v2 (`analyse/v2_*.ipynb` et `analyse/EDA_v2.ipynb`)
 
-**Question à poursuivre :** l'Elo prédit-il aussi bien les matchs de Ligue des Champions que ceux de championnat, et faut-il le compléter par des indicateurs propres à la C1 ?
+- **Elo maison** (`v2_elo.ipynb`) : couvre **100 %** des matchs (contre 80 % pour l'Elo officiel) ; la règle « le meilleur Elo gagne » y atteint **56,0 %**. L'Elo championnat ne fait que **48,2 %** : il compare mal des clubs de pays différents ;
+- **Lien avec le résultat (Spearman) :** écart de valeur d'effectif **0,446**, écart d'Elo global **0,416**, écart d'Elo C1 **0,404**, écart d'Elo championnat **0,22** ;
+- **Elo par quintile :** le score moyen à domicile passe de **0,32** (écart d'Elo le plus défavorable) à **0,84** (écart le plus favorable) ;
+- **Repos :** aucun lien net avec le résultat (**-0,06**) une fois retirés les clubs dont le championnat manque dans les données ; le lien de départ (-0,22) venait de ce biais ;
+- **Variables redondantes :** Elo global / Elo championnat **0,79**, Elo global / Elo C1 **0,70**, Elo global / valeur d'effectif **0,67** : à ne pas utiliser ensemble sans précaution.
 
+**Principales limites :** aucun match de 2026-2027, la rotation C1 n'est connue que pour 710 matchs sur 1 871, aucune donnée météo, et les corrélations ne contrôlent pas le niveau des équipes (corrélation ≠ causalité).
+
+**Question à poursuivre :** un modèle fait-il mieux que la règle Elo (56 %), et la valeur d'effectif ajoute-t-elle quelque chose une fois l'Elo pris en compte ?
 ---
 
 ## 🚧 Avancement
 
 - [x] Collecte des données
-- [x] Analyse exploratoire
+- [x] Analyse exploratoire (EDA v2 : assemblage des tableaux Elo, joueurs et fatigue fait, `output/eda_matchs_c1.csv`)
 - [ ] Nettoyage et harmonisation (scores et phases déjà corrigés dans l'EDA)
 - [ ] Feature engineering
 - [ ] Entraînement des modèles
