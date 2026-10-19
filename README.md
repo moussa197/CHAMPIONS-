@@ -11,7 +11,7 @@ Projet de data science qui analyse l'historique de la Ligue des Champions (UEFA 
 - **Question :** quels clubs ont le plus de chances de remporter la Ligue des Champions 2026-2027 ?
 - **Pourquoi :** passer d'un avis de supporter (« le Real gagne toujours ») à une estimation chiffrée et défendable, appuyée sur les données.
 - **Livrable :** un classement des 36 clubs engagés, avec une probabilité de titre pour chacun.
-- **Critère de réussite :** le modèle doit prédire les matchs mieux qu'une règle simple, sur des saisons qu'il n'a pas vues pendant l'entraînement. Référence à battre : la règle « l'équipe avec le meilleur Elo gagne » a raison dans **56 %** des matchs selon l'EDA v1 (Elo officiel, `EloRatings.csv`, matchs où les deux Elo sont connus) (à recalculer sur la base de modélisation).
+- **Critère de réussite :** le modèle doit prédire les matchs mieux qu'une règle simple, sur des saisons qu'il n'a pas vues pendant l'entraînement. Référence à battre : la règle « l'équipe avec le meilleur Elo gagne » a raison dans **56 %** des matchs selon l'EDA v1 (Elo officiel, `EloRatings.csv`, matchs où les deux Elo sont connus); recalculé avec notre Elo maison (v2_elo.ipynb) : 56,0 % sur 100 % des matchs.
 
 ---
 
