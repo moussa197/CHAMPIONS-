@@ -41,3 +41,22 @@ Elle n'a pas ajusté les probabilités pour retrouver les ordres de grandeur fou
 Le bilan conserve les contre-exemples : le Brier du titre 2024-2025 est moins bon
 que celui de la baseline uniforme. Il reste à faire relire ces choix et leurs limites
 par un autre membre du groupe ; ces contrôles automatiques ne remplacent pas cette relecture.
+
+## 3. Complément finale, météo et reproductibilité
+
+Résumé de la demande suivante du 20 octobre 2026 : compléter la finale de l'année,
+examiner l'intégration de la météo et résoudre les deux blocages remontés par un collègue
+sous Windows (décodage cp1252 et comparaison des fonctions du modèle).
+
+Vérifications : la finale Paris–Arsenal du 30 mai 2026 est confirmée par l'UEFA ; le score
+1-1 et la victoire 4-3 aux tirs au but sont séparés. La vérité de titre complète le backtest,
+sans ajouter la finale à son apprentissage. L'empreinte du même code a été comparée sous
+Python 3.12 et 3.13 : elle diffère à cause de la représentation de l'AST. Le contrôle
+numérique est désormais effectué dans l'environnement courant, sur 282 cas.
+
+Les lectures/écritures de texte précisent UTF-8. Des régressions vérifient cp1252 simulé,
+les fins de ligne Windows et les divergences réelles de calcul. La météo fait l'objet
+d'un diagnostic local et d'une recherche dans les documentations Open-Meteo. Les tables
+ne fournissent pas les heures et coordonnées nécessaires ; aucun coefficient météo ni
+gain de performance n'est inventé. Les prévisions réellement disponibles avant le match
+devront être collectées et évaluées avant de changer le modèle du groupe.
