@@ -14,6 +14,7 @@ Règle du groupe : l'IA propose, nous vérifions. Aucun chiffre de ce dépôt n'
 | 6 | Loan | forme et audit | L'IA critique son propre audit |
 | 7 | Maxime | simulation | La demande du 20 octobre 2026 |
 | 8 | Maxime | simulation | Le choix explicite des règles |
+| 9 | Maxime | simulation | Complément : finale, météo et reproductibilité |
 | … | Mouhamedou, Ousmane | à compléter | voir la dernière section |
 
 ---
@@ -166,6 +167,17 @@ L'IA a signalé des différences entre les consignes du groupe et le règlement 
 **Ce que l'IA a fait :** elle a conservé le départage final au hasard et le retour chez le meilleur rang de la phase de ligue à tous les tours, en documentant les écarts aux articles 18 et 19 du règlement UEFA. Elle n'a pas ajusté les probabilités pour retrouver les ordres de grandeur fournis.
 
 **Ce qui reste à faire :** le bilan garde les contre-exemples : pour le titre 2024-2025, le score de Brier est moins bon que celui de la baseline uniforme. Ces choix et leurs limites doivent encore être **relus par un autre membre du groupe** : les contrôles automatiques ne remplacent pas cette relecture.
+
+### Prompt 9 — Complément : finale, météo et reproductibilité
+**La demande (résumée par Maxime), le 20 octobre 2026 :** compléter la finale de l'année, examiner l'intégration de la météo, et résoudre les deux blocages remontés par un membre du groupe sous Windows (décodage cp1252 et comparaison des fonctions du modèle).
+
+**Ce qu'on a vérifié :**
+- la finale Paris–Arsenal du 30 mai 2026 est confirmée par l'UEFA. Le score de 1-1 et la victoire 4-3 aux tirs au but sont séparés. Cette finale complète la vérité de titre du backtest, sans être ajoutée à son apprentissage ;
+- l'empreinte du même code a été comparée sous Python 3.12 et 3.13 : elle diffère à cause de la représentation de l'AST. Le contrôle numérique est désormais fait dans l'environnement courant, sur 282 cas ;
+- les lectures et écritures de texte précisent l'UTF-8. Des tests de régression vérifient l'encodage cp1252 simulé, les fins de ligne Windows et les vraies divergences de calcul ;
+- **relecture indépendante (Loan) :** `SIMULATION_2026.ipynb` tourne de bout en bout sous Windows avec Python 3.13, sans modification, et retrouve les chiffres publiés (Arsenal 23,30 %, Man City 14,96 %, Bayern 12,40 %).
+
+**Ce qu'on a refusé d'inventer : la météo.** Elle a fait l'objet d'un diagnostic local et d'une recherche dans les documentations Open-Meteo. Nos tables ne donnent pas les heures ni les coordonnées des matchs : aucun coefficient météo ni gain de performance n'est inventé. Les prévisions réellement disponibles avant le match devront être collectées et évaluées avant de changer le modèle du groupe.
 
 ---
 
