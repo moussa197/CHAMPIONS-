@@ -12,34 +12,66 @@ Règle du groupe : l'IA propose, nous vérifions. Aucun chiffre de ce dépôt n'
 | 4 | Loan | forme et audit | Le cadre du projet et le diagnostic avant de coder |
 | 5 | Loan | forme et audit | Construire la forme récente et auditer le modèle |
 | 6 | Loan | forme et audit | L'IA critique son propre audit |
-| … | Maxime, Mouhamedou, Ousmane | à compléter | voir la dernière section |
+| 7 | Maxime | simulation | La demande du 20 octobre 2026 |
+| 8 | Maxime | simulation | Le choix explicite des règles |
+| … | Mouhamedou, Ousmane | à compléter | voir la dernière section |
 
 ---
 
 ## Partie modèle (Moussa)
 
-Le détail complet est dans `prompts_moussa.md` (branche `feature/model-baseline`). En résumé :
+*Reprend intégralement `prompts_moussa.md`, supprimé de la racine une fois intégré ici.*
 
-### Prompt 1 — Le diagnostic avant de coder
+### Prompt 1 — Le diagnostic avant de coder (diapo 24 du cours)
 > « Tu es mon reviewer ML. Voici : question, grain, cible, colonnes, EDA, date de prédiction. 1. La cible est-elle définie ? 2. Quelles features sont disponibles à temps ? 3. Quelles fuites ou biais possibles ? 4. Quel split et quelle baseline ? 5. Quelle métrique et pourquoi ? Pose 3 questions bloquantes avant de coder. »
 
-- **Proposé :** la cible mélange 90 et 120 minutes (prolongations) ; petite fuite possible de l'Elo « maison recalé » ; le test 2023-2025 a déjà servi à choisir la variable « nouveau format ».
-- **Vérifié :** prolongations = 21 matchs sur 1 871 (1,1 %), effet négligeable ; Elo recalé = 81 lignes club-match sur 3 742 (2,2 %), chiffre retrouvé de façon indépendante dans `AUDIT_MODELE.ipynb`.
-- **Décidé :** garder le test pour le modèle choisi avant (Elo + terrain), et écrire la réutilisation du test comme une limite.
+**Ce que l'IA a relevé :**
+- la cible (les buts) mélange 90 et 120 minutes, à cause des prolongations ;
+- une petite fuite possible dans l'Elo « maison recalé » (droite ajustée sur toute la saison) ;
+- le risque le plus sérieux : le test 2023-2025 avait déjà servi à décider d'ajouter la variable « nouveau format ».
 
-### Prompt 2 — Un pipeline vérifiable
+**Ses 3 questions bloquantes, et nos réponses :**
+1. Forme récente : attendre Loan ? → Non : une section qui se branche quand son fichier arrive, et un pré-test rapide en attendant.
+2. Le test déjà « vu » ? → On le garde pour le modèle choisi avant (Elo + terrain), on justifie le format uniquement par le test vers l'avant (2025-2026), et on l'écrit comme limite.
+3. Forcer des nuls dans la matrice de confusion ? → Non : on garde la règle « issue la plus probable », car la simulation n'utilise que les probabilités.
+
+**Ce qu'on a vérifié nous-mêmes :**
+- les prolongations : **21 matchs sur 1 871 (1,1 %)**, 22 buts sur 5 735. L'effet est négligeable, et il est écrit comme limite ;
+- l'Elo recalé : **81 lignes club-match sur 3 742 (2,2 %)**. Chiffre retrouvé de façon indépendante dans `AUDIT_MODELE.ipynb` (Loan).
+
+### Prompt 2 — Un pipeline vérifiable (diapo 25)
 > « Génère un notebook scikit-learn minimal : split adapté, pas de fuite, preprocessing en Pipeline ; baseline Dummy, modèle simple, random_state fixé ; métriques adaptées et tableau comparatif ; cellules Markdown qui expliquent chaque étape ; aucun téléchargement externe ni donnée inventée. »
 
-- **Proposé :** `MODEL_POISSON.ipynb` v2 (`SimpleImputer` + `PoissonRegressor` dans un `Pipeline`, split chronologique, Dummy, log loss, RPS, accuracy, balanced accuracy, MAE).
-- **Vérifié :** un `assert` compare le Pipeline à statsmodels. Il a d'abord **échoué** (écart de 0,0002, solveur trop peu précis) : corrigé avec `solver='newton-cholesky'`, `tol=1e-10`.
-- **Corrigé :** les phrases causales (« le nouveau format marque plus de buts ») sont devenues des observations.
+**Ce que l'IA a produit :** `MODEL_POISSON.ipynb` v2, avec un `Pipeline` (`SimpleImputer` + `PoissonRegressor`), un split chronologique, `DummyClassifier` et `DummyRegressor`, et comme métriques la log loss, le RPS, l'accuracy, la balanced accuracy, la matrice de confusion et la MAE des buts.
 
-### Prompt 3 — L'IA critique son propre résultat
+**Ce qu'on a vérifié :**
+- **Le Pipeline donne le même modèle que statsmodels.** Un `assert` compare les coefficients. Il a d'abord **échoué** : avec ses réglages par défaut, `PoissonRegressor` s'arrête trop tôt (écart de 0,0002). Corrigé avec `solver='newton-cholesky'` et `tol=1e-10` : l'écart tombe à 10⁻¹¹ ;
+- **les fonctions exportées** (`probas_match`, `tirer_score`) donnent les mêmes probabilités que le Pipeline (à 10⁻⁹ près), et `tirer_score` retrouve les bons buts moyens sur 100 000 tirages ;
+- **tous les chiffres de la v1 sont retrouvés à l'identique** avec le Pipeline.
+
+**Ce qu'on a corrigé :** des phrases causales (« le nouveau format marque plus de buts ») remplacées par des observations (« depuis le nouveau format, on observe plus de buts »).
+
+### Prompt 3 — L'IA critique son propre résultat (diapo 26)
 > « Agis comme un auditeur hostile. Cherche : data leakage et cible mal définie, train/test contaminés, métrique trompeuse, classes déséquilibrées, faible taille d'échantillon, features non disponibles en production. Propose 3 tests concrets pour réfuter le modèle. »
 
-- **Proposé :** cible mélangée, retrait de l'Elo recalé, sous-groupes, calibration des favoris.
-- **Vérifié :** les quatre tests ont été lancés. Les trois premiers ont été **refaits de façon indépendante** dans `AUDIT_MODELE.ipynb` (Loan), avec les mêmes chiffres : cible mélangée 1,026, Elo recalé sans effet (0,905), gain de +0,14 en groupes et de +0,03 en élimination directe.
-- **Contesté par l'audit :** l'explication « les matchs à Elo estimé sont mieux prédits parce qu'ils sont déséquilibrés » ne tient qu'en partie. À écart d'Elo égal, ils restent bien mieux prédits (voir `AUDIT_MODELE.ipynb`, section 5). Le point reste ouvert.
+**Les tests, et ce qu'ils ont donné (test 2023-2025, modèle Elo + terrain) :**
+
+| Test | Résultat | Conclusion |
+|---|---|---|
+| **Cible mélangée** : on mélange les scores de l'apprentissage | log loss 1,026 ± 0,011, contre 1,020 pour le Dummy (0,902 pour le vrai modèle) | ✅ sans le vrai lien entre l'Elo et les scores, le modèle ne vaut plus rien : pas de fuite par la structure des données |
+| **Retirer l'Elo « maison recalé »** (la petite fuite) | log loss 0,9050 dans les deux cas, avec ou sans ces matchs à l'apprentissage | ✅ la fuite n'a aucun effet mesurable |
+| **Sous-groupes** | gain sur le Dummy : +0,14 en phase de groupes, seulement +0,03 en élimination directe | ⚠️ voir ci-dessous |
+| **Calibration des favoris** | annoncé à 65 %, il gagne 75 % ; à 74 %, 77 % ; à 87 %, 91 % | ⚠️ sur 2023-2025, le modèle est un peu **trop prudent** avec les favoris |
+
+**Ce que les tests ont révélé :**
+1. **Le modèle paraît moins bon en élimination directe.** On a vérifié pourquoi : à écart d'Elo égal (moins de 150 points), son gain est le même en phase de groupes (+0,029) et en élimination directe (+0,027). Les matchs à élimination directe sont simplement plus **serrés** (113 points d'écart moyen, contre 149) : ils sont plus durs à prévoir pour n'importe quel modèle. Ce n'est pas un défaut propre au modèle, mais c'est important, car ce sont ces matchs qui décident du titre.
+2. **Les favoris gagnent plus que prévu sur 2023-2025.** C'est cohérent avec le nouveau format (plus de buts, moins de nuls, donc des résultats plus tranchés), que la variable « format » corrige en partie. Attention : à l'échelle du tournoi, le backtest montrait l'inverse (un peu trop confiant sur les grands favoris). Les deux ne se contredisent pas : un match isolé et un parcours de 4 tours ne posent pas la même question.
+3. **Les matchs avec un Elo estimé sont les mieux prédits** (gain de +0,34), parce que ce sont souvent des matchs très déséquilibrés contre de petits clubs. L'estimation ne dégrade donc pas les prédictions.
+
+**Relecture indépendante (Loan, `AUDIT_MODELE.ipynb`) :**
+- **Confirmé :** la cible mélangée (1,026), l'Elo recalé sans effet (0,905), et le gain identique à moins de 150 points d'écart (+0,029 contre +0,027) ;
+- **Nuancé :** au-delà de 150 points, le gain en élimination directe (+0,048) ne repose que sur 40 matchs, avec un intervalle de −0,168 à +0,240 : on ne peut rien conclure ;
+- **Contesté :** le point 3. À écart d'Elo égal, les matchs à Elo estimé restent bien mieux prédits (0,380 contre 0,840 au-delà de 300 points). Le déséquilibre n'explique donc qu'une partie de l'écart, et le point reste ouvert.
 
 ---
 
@@ -100,12 +132,46 @@ Outil : Claude Code (Claude Opus 5.5), dans le dépôt, sur la branche `feature/
 
 ---
 
+## Partie simulation (Maxime)
+
+*Reprend intégralement `prompts_maxime.md`, supprimé de la racine une fois intégré ici.*
+
+### Prompt 7 — La demande du 20 octobre 2026
+**La demande (résumée par Maxime) :** réaliser la partie simulation attribuée à Maxime dans le projet CHAMPIONS-, récupérer le modèle de scores du groupe et créer la branche `feature/simulation`.
+
+Pièces fournies : `consignes_equipe.md` et deux captures précisant la répartition du travail, la branche `feature/simulation` et le livrable `SIMULATION_2026.ipynb`. Les consignes techniques du bloc Maxime servent de cahier des charges ; ce ne sont pas des résultats à recopier.
+
+**Ce que l'IA a proposé :** un moteur de scores de Poisson, un classement et un tableau, des mises à jour de l'Elo, 10 000 répétitions et deux backtests chronologiques. Elle a récupéré les notebooks du modèle depuis `feature/model-baseline`, la branche réellement disponible, sans modifier leurs sources.
+
+**Ce qu'on a vérifié (contrôles exécutés) :**
+- les quatre fonctions sont identiques à celles du modèle ;
+- 144 matchs et 36 clubs ; 16, 8, 4, 2 puis 1 qualifiés ; la somme des titres fait 100 % ;
+- la remise à zéro des Elo, la neutralité de la finale, l'absence de règle des buts à l'extérieur ;
+- une seule mise à jour de l'Elo pour un match avec prolongation ;
+- la reproductibilité par graine.
+
+Les résultats ont été recalculés à partir des fichiers locaux.
+
+**Ce qu'on a corrigé :**
+- le recalage historique des Elo n'utilise que des observations **antérieures** ;
+- aucune « vérité » de titre n'est ajoutée pour la finale 2026, qui manque dans les données ;
+- des bornes de Wilson, pour ne pas présenter « zéro titre observé » comme une impossibilité ;
+- la formule et les contrôles de durée ont aussi été relus et corrigés.
+
+### Prompt 8 — Le choix explicite des règles
+L'IA a signalé des différences entre les consignes du groupe et le règlement de l'UEFA. Réponse réellement donnée par Maxime :
+
+> « Suivre les consignes du groupe, avec les simplifications expliquées »
+
+**Ce que l'IA a fait :** elle a conservé le départage final au hasard et le retour chez le meilleur rang de la phase de ligue à tous les tours, en documentant les écarts aux articles 18 et 19 du règlement UEFA. Elle n'a pas ajusté les probabilités pour retrouver les ordres de grandeur fournis.
+
+**Ce qui reste à faire :** le bilan garde les contre-exemples : pour le titre 2024-2025, le score de Brier est moins bon que celui de la baseline uniforme. Ces choix et leurs limites doivent encore être **relus par un autre membre du groupe** : les contrôles automatiques ne remplacent pas cette relecture.
+
+---
+
 ## Prompts des autres membres (à compléter)
 
 Pour chacun : le prompt **exact**, ce que l'IA a proposé, ce qu'on a vérifié, ce qu'on a corrigé ou refusé. **Ne rien reconstituer de mémoire** : coller le vrai prompt.
-
-### Maxime — participants et calendrier 2026-2027
-*À compléter par Maxime.*
 
 ### Mouhamedou — joueurs et effectif
 *À compléter par Mouhamedou.*
