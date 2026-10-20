@@ -2,9 +2,9 @@
 
 ## 1. Demande du 20 octobre 2026
 
-Extrait du message réellement envoyé à Codex :
-
-> ok maintenant je dois faire ca (je suis maxime) et (Max et mouhamedou doivent recuperer ce qu'il y a dans la branche modele): nous travaillons toujours dans le meme projet et dossier oublie pas de crer ma branche etc
+Résumé de la demande initiale : réaliser la partie simulation attribuée à Maxime
+dans le projet CHAMPIONS-, récupérer le modèle de scores du groupe et créer
+la branche `feature/simulation`.
 
 Pièces fournies : `consignes_equipe.md` et deux captures précisant la répartition du
 travail, la branche `feature/simulation` et le livrable `SIMULATION_2026.ipynb`.
