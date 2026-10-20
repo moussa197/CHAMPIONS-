@@ -34,10 +34,15 @@ CHAMPIONS-/
 │   ├── v2_joueurs.ipynb             # Variables joueurs par équipe et par match (Mouhamedou)
 │   ├── v2_fatigue.ipynb             # Repos et calendrier par club et par match (Ousmane)
 │   ├── v2_participants.ipynb        # Clubs engagés en 2026-2027
-│   └── EDA_v2.ipynb                 # EDA v2 : assemblage des tableaux, corrélations, conclusion (Loan)
+│   ├── v2_forme.ipynb               # Forme récente avant chaque match de C1 (Loan)
+│   ├── EDA_v2.ipynb                 # EDA v2 : assemblage des tableaux, corrélations, conclusion (Loan)
+│   ├── MODEL_BASELINE.ipynb         # Modèles de référence (Moussa)
+│   ├── MODEL_POISSON.ipynb          # Modèle de scores retenu (Moussa)
+│   └── AUDIT_MODELE.ipynb           # Audit « équipe rouge » du modèle de scores (Loan)
 ├── notebooks/                       # Notebooks de modélisation (à venir)
 ├── data/                            # Datasets CSV (non versionnés, voir ci-dessous)
 ├── output/                          # CSV produits par les notebooks (non versionnés)
+├── prompts.md                       # Prompts d'IA utilisés, avec ce qu'on a vérifié et corrigé
 ├── .gitignore
 └── README.md
 ```
@@ -116,7 +121,7 @@ ucl = games[games["competition_id"] == "CL"].sort_values("date")
    ```bash
    python -m venv .venv
    # Windows : .venv\Scripts\activate    —    macOS / Linux : source .venv/bin/activate
-   python -m pip install pandas numpy matplotlib jupyter scikit-learn xgboost
+   python -m pip install pandas numpy matplotlib jupyter scikit-learn xgboost statsmodels scipy joblib
    ```
    Dans VS Code, choisir le noyau `.venv` en haut à droite du notebook.
 3. Télécharger les datasets Kaggle et placer les CSV dans `data/`.
@@ -133,10 +138,15 @@ Les notebooks lisent les données avec des chemins relatifs (`../data/games.csv`
 
 Les CSV de `output/` ne sont pas commités : chacun les régénère en local, dans cet ordre.
 
-1. `analyse/v2_elo.ipynb` → `output/elo_par_match.csv` (une ligne par match de C1) ;
+1. `analyse/v2_elo.ipynb` → `output/elo_par_match.csv` (une ligne par match de C1) et `output/elo_participants_2026.csv` ;
 2. `analyse/v2_joueurs.ipynb` → `output/joueurs_par_match.csv` (une ligne par équipe et par match) ;
 3. `analyse/v2_fatigue.ipynb` → `output/fatigue_par_match.csv` (une ligne par club et par match) ;
-4. `analyse/EDA_v2.ipynb` → `output/eda_matchs_c1.csv` (une ligne par match de C1, toutes les variables assemblées).
+4. `analyse/v2_participants.ipynb` → `output/participants_2026.csv` et `output/calendrier_2026.csv` ;
+5. `analyse/EDA_v2.ipynb` → `output/eda_matchs_c1.csv` (une ligne par match de C1, toutes les variables assemblées) ;
+6. `analyse/v2_forme.ipynb` → `output/forme_par_match.csv` (une ligne par match de C1). Il lit `eda_matchs_c1.csv`, et `MODEL_POISSON` le lit ensuite ;
+7. `analyse/MODEL_BASELINE.ipynb` → modèles de référence ;
+8. `analyse/MODEL_POISSON.ipynb` → `output/modele_scores.joblib` et `output/predictions_phase_ligue_2026.csv` ;
+9. `analyse/AUDIT_MODELE.ipynb` → aucun fichier : il vérifie le modèle.
 
 ---
 
@@ -170,6 +180,19 @@ Les CSV de `output/` ne sont pas commités : chacun les régénère en local, da
 **Principales limites :** aucun match de 2026-2027, la rotation C1 n'est connue que pour 710 matchs sur 1 871, aucune donnée météo, et les corrélations ne contrôlent pas le niveau des équipes (corrélation ≠ causalité).
 
 **Question à poursuivre :** un modèle fait-il mieux que la règle Elo (56 %), et la valeur d'effectif ajoute-t-elle quelque chose une fois l'Elo pris en compte ?
+
+### Forme récente (`analyse/v2_forme.ipynb`)
+
+- **Définition :** points moyens par match (victoire 3, nul 1, défaite 0) sur les **5 derniers matchs officiels** du club, toutes compétitions de clubs, joués **strictement avant** le match et **dans les 60 jours** ;
+- **Tirs au but :** en plus des 8 matchs de C1 corrigés dans l'EDA, **1 213 autres scores** de `games.csv` (coupes, supercoupes, qualifications) incluent les tirs au but. Ils sont comptés comme des nuls ;
+- **Couverture :** 99 % des matchs ont un écart de forme ; 19 matchs (1,0 %) n'en ont pas ;
+- **Lien avec le résultat :** **+0,23**, mais la forme suit l'Elo (**+0,42**). Une fois l'Elo retiré, il reste **+0,035**, sous la marge de hasard (± 0,046). Dans `MODEL_POISSON` (section 8), la forme est **rejetée** par la règle fixée à l'avance : log loss 0,9156 contre 0,9148, meilleure sur 4 saisons sur 8 seulement.
+
+### Audit du modèle de scores (`analyse/AUDIT_MODELE.ipynb`)
+
+- **Ce qui résiste :** pas de fuite par la cible (avec des scores mélangés, la log loss tombe à 1,026, au niveau « terrain seul ») ; l'Elo officiel est bien connu avant le match ; l'Elo et le terrain apportent un gain réel ; la fuite de l'Elo « maison recalé » (79 matchs, 4,2 %) n'a aucun effet mesurable ; le rejet de la forme est reproduit à l'identique ;
+- **Ce qui est fragile :** en **élimination directe** (118 matchs de test), le modèle n'est **pas démontré meilleur que le Dummy** (intervalle de −0,043 à +0,106) ; le gain du **nouveau format** n'est pas démontré (+0,0016 sur 188 matchs), et il a été choisi en regardant le test ;
+- **Ce qui reste ouvert :** à écart d'Elo égal, les matchs à Elo estimé sont bien mieux prédits que les autres, sur de petits groupes.
 ---
 
 ## 🚧 Avancement
@@ -177,8 +200,8 @@ Les CSV de `output/` ne sont pas commités : chacun les régénère en local, da
 - [x] Collecte des données
 - [x] Analyse exploratoire (EDA v2 : assemblage des tableaux Elo, joueurs et fatigue fait, `output/eda_matchs_c1.csv`)
 - [ ] Nettoyage et harmonisation (scores et phases déjà corrigés dans l'EDA)
-- [ ] Feature engineering
-- [ ] Entraînement des modèles
+- [ ] Feature engineering (forme récente faite, `v2_forme.ipynb` : rejetée par le modèle)
+- [ ] Entraînement des modèles (modèle de scores de Poisson et son audit faits, `MODEL_POISSON.ipynb` et `AUDIT_MODELE.ipynb`)
 - [ ] Prédiction 2026-2027
 
 ---
