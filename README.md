@@ -38,7 +38,9 @@ CHAMPIONS-/
 │   ├── EDA_v2.ipynb                 # EDA v2 : assemblage des tableaux, corrélations, conclusion (Loan)
 │   ├── MODEL_BASELINE.ipynb         # Modèles de référence (Moussa)
 │   ├── MODEL_POISSON.ipynb          # Modèle de scores retenu (Moussa)
-│   └── AUDIT_MODELE.ipynb           # Audit « équipe rouge » du modèle de scores (Loan)
+│   ├── AUDIT_MODELE.ipynb           # Audit « équipe rouge » du modèle de scores (Loan)
+│   ├── SIMULATION_2026.ipynb        # Simulation de la saison 2026-2027 (Maxime, voir README_SIMULATION.md)
+│   └── SIMULATION_INCERTITUDE.ipynb # Intervalles et sensibilité des probabilités de titre (Loan)
 ├── notebooks/                       # Notebooks de modélisation (à venir)
 ├── data/                            # Datasets CSV (non versionnés, voir ci-dessous)
 ├── output/                          # CSV produits par les notebooks (non versionnés)
@@ -163,7 +165,9 @@ Les CSV de `output/` ne sont pas commités : chacun les régénère en local, da
 6. `analyse/v2_forme.ipynb` → `output/forme_par_match.csv` (une ligne par match de C1). Il lit `eda_matchs_c1.csv`, et `MODEL_POISSON` le lit ensuite ;
 7. `analyse/MODEL_BASELINE.ipynb` → modèles de référence ;
 8. `analyse/MODEL_POISSON.ipynb` → `output/modele_scores.joblib` et `output/predictions_phase_ligue_2026.csv` ;
-9. `analyse/AUDIT_MODELE.ipynb` → aucun fichier : il vérifie le modèle.
+9. `analyse/AUDIT_MODELE.ipynb` → aucun fichier : il vérifie le modèle ;
+10. `analyse/SIMULATION_2026.ipynb` → `output/resultats_simulation_2026.csv` et les autres sorties de la simulation ;
+11. `analyse/SIMULATION_INCERTITUDE.ipynb` → `output/incertitude_titre_2026.csv` et `output/sensibilite_2026.csv` (environ 6 minutes : il simule 300 000 saisons, réparties sur les cœurs du processeur).
 
 ---
 
@@ -210,6 +214,14 @@ Les CSV de `output/` ne sont pas commités : chacun les régénère en local, da
 - **Ce qui résiste :** pas de fuite par la cible (avec des scores mélangés, la log loss tombe à 1,026, au niveau « terrain seul ») ; l'Elo officiel est bien connu avant le match ; l'Elo et le terrain apportent un gain réel ; la fuite de l'Elo « maison recalé » (79 matchs, 4,2 %) n'a aucun effet mesurable ; le rejet de la forme est reproduit à l'identique ;
 - **Ce qui est fragile :** en **élimination directe** (118 matchs de test), le modèle n'est **pas démontré meilleur que le Dummy** (intervalle de −0,043 à +0,106) ; le gain du **nouveau format** n'est pas démontré (+0,0016 sur 188 matchs), et il a été choisi en regardant le test ;
 - **Ce qui reste ouvert :** à écart d'Elo égal, les matchs à Elo estimé sont bien mieux prédits que les autres, sur de petits groupes.
+---
+
+### Incertitude et sensibilité de la simulation (`analyse/SIMULATION_INCERTITUDE.ipynb`)
+
+- **Intervalles :** la marge de la simulation (± 0,8 point pour Arsenal) ne mesurait que le hasard des tirages. En ajoutant l'incertitude des coefficients du modèle, Arsenal a **23,3 % ± 1,6** de chances de titre (21,7 à 24,9 %). Pour atteindre les quarts, l'incertitude du modèle est 2 à 3 fois plus grande que le hasard de la simulation ;
+- **Sensibilité :** le top 3 (Arsenal, Man City, Bayern) ne change dans **aucun** des 9 scénarios testés (terrain, poids de l'Elo, nouveau format). Le réglage qui compte est le poids de l'Elo : Arsenal varie de 21,6 à 25,1 % dans son intervalle de confiance ;
+- **Limite :** ces marges ne couvrent pas l'incertitude de l'Elo de départ ni les règles simplifiées : la vraie incertitude est plus grande.
+
 ---
 
 ## 🚧 Avancement
