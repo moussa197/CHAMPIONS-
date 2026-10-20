@@ -64,9 +64,9 @@ Outil : Claude Code (Claude Opus 5.5), dans le dépôt, sur la branche `feature/
 3. L'audit doit-il refaire le test de la forme ? → **Non** : le test est déjà dans `MODEL_POISSON` (section 8), avec une règle fixée à l'avance. L'audit le **recalcule** et vérifie que la règle a été respectée. La décision est prise à un seul endroit et vérifiée par quelqu'un d'autre.
 
 **Ce qu'on a vérifié nous-mêmes :**
-- [ ] *(Loan)* les 3 exemples à la main de `v2_forme.ipynb`, section 3 : Benfica 2,20, Porto 2,50 sur 4 matchs, PSG 2,60 (la Supercoupe d'Europe contre Tottenham, notée 6-5 dans `games.csv`, compte bien 1 point) ;
-- [ ] *(Loan)* qu'aucun match utilisé n'est joué le jour même ou après : `assert` sur les 3 742 lignes club-match ;
-- [ ] *(Loan)* que la régénération ne touche à aucun fichier versionné des autres : `git status` vide après l'exécution.
+- [x] les 3 exemples à la main de `v2_forme.ipynb`, section 3 : Benfica 2,20, Porto 2,50 sur 4 matchs, PSG 2,60 (la Supercoupe d'Europe contre Tottenham, notée 6-5 dans `games.csv`, compte bien 1 point). Les matchs utilisés et leurs dates sont affichés, et un `assert` recalcule chaque moyenne ;
+- [x] qu'aucun match utilisé n'est joué le jour même ou après : `assert` sur les 3 742 lignes club-match ;
+- [x] que la régénération ne touche à aucun fichier versionné des autres : `git status` vide après l'exécution des 6 notebooks.
 
 **Ce qu'on a refusé :** l'IA ne trouvait pas la section 8 de `MODEL_POISSON` dans la version poussée. Plutôt que de deviner son contenu, on a attendu que Moussa la pousse (commit `65741bd`), puis on l'a auditée telle quelle.
 
@@ -77,7 +77,7 @@ Outil : Claude Code (Claude Opus 5.5), dans le dépôt, sur la branche `feature/
 
 **Ce qu'on a vérifié :**
 - l'audit **reproduit à l'identique** les chiffres de Moussa (`assert`) : glissante 0,9148, test 0,902, Dummy 1,020, et pour la forme 0,9148 / 0,9156 sur 4 saisons sur 8, d'où le rejet ;
-- [ ] *(Loan)* relire les lectures : chaque chiffre écrit dans un Markdown doit apparaître dans une sortie de cellule.
+- [x] chaque chiffre écrit dans une « Lecture » apparaît dans une sortie de cellule. Contrôle automatique sur les deux notebooks : les seuls nombres absents des sorties sont des années, un numéro de commit, et deux valeurs calculées à partir des sorties (9,5 % = 5,8 % + 3,7 % ; 99 % = 100 % − 1,0 %).
 
 **Ce qu'on a corrigé (erreurs de l'IA détectées pendant le travail) :**
 1. **Test de la cible mélangée mal posé.** Le premier `assert` exigeait que le modèle mélangé ne batte jamais le Dummy, et il a échoué (1,008 < 1,020). Ce n'était pas une fuite : mélanger les scores garde l'avantage du terrain, donc la bonne référence est le modèle « terrain seul » (1,028). La référence a été corrigée, et l'erreur est expliquée dans le notebook.
