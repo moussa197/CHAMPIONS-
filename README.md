@@ -127,6 +127,23 @@ ucl = games[games["competition_id"] == "CL"].sort_values("date")
 
 Les notebooks lisent les données avec des chemins relatifs (`../data/games.csv`) : ils doivent être lancés depuis leur propre dossier.
 
+## Application
+
+L’application Streamlit utilise le modèle déjà entraîné ; elle ne réentraîne aucun modèle.
+Après avoir installé Python et créé l’environnement `.venv` comme indiqué ci-dessus :
+
+```bash
+python -m pip install streamlit pandas numpy joblib
+python -m streamlit run app/app.py
+```
+
+Lancez l’application depuis la racine du dépôt. Elle lit les fichiers générés dans `output/`
+et ne réentraîne jamais le modèle. Pour préparer les entrées, exécutez les notebooks de
+préparation jusqu’à `analyse/EDA_v2.ipynb`, puis `analyse/v2_participants.ipynb` pour le
+calendrier. Exécutez ensuite `analyse/MODEL_POISSON.ipynb` pour sauvegarder le modèle déjà
+entraîné et les prédictions de la phase de ligue. Les résultats de simulation seront affichés
+lorsqu’ils auront été produits par Maxime.
+
 ---
 
 ## ▶️ Ordre d'exécution
