@@ -155,8 +155,15 @@ Lancez l’application depuis la racine du dépôt. Elle lit les fichiers géné
 et ne réentraîne jamais le modèle. Pour préparer les entrées, exécutez les notebooks de
 préparation jusqu’à `analyse/EDA_v2.ipynb`, puis `analyse/v2_participants.ipynb` pour le
 calendrier. Exécutez ensuite `analyse/v2_forces.ipynb`, puis `analyse/MODEL_POISSON.ipynb` pour sauvegarder le modèle déjà
-entraîné et les prédictions de la phase de ligue. Les résultats de simulation seront affichés
-lorsqu’ils auront été produits par Maxime.
+entraîné et les prédictions de la phase de ligue, et enfin `analyse/SIMULATION_2026.ipynb`
+pour la page Simulation.
+
+- **Prédire un match** : buts attendus, probabilités victoire/nul/défaite, **les 5 scores les plus
+  probables**, la probabilité de 3 buts ou plus et celle que les deux équipes marquent, puis la
+  grille complète des scores. Le modèle utilise l’Elo, les forces d’attaque et de défense et la
+  valeur des joueurs récents des deux clubs.
+- **Phase de ligue 2026-27** : les 144 matchs, filtrables par journée et par club.
+- **Simulation** : le favori, les 10 favoris au titre et les probabilités de chaque tour pour les 36 clubs.
 
 ---
 
@@ -175,7 +182,7 @@ Les CSV de `output/` ne sont pas commités : chacun les régénère en local, da
 9. `analyse/MODEL_POISSON.ipynb` → `output/modele_scores.joblib` et `output/predictions_phase_ligue_2026.csv`. Il lit aussi `forces_par_match.csv`, `forces_participants_2026.csv`, `forme_par_match.csv` et, s'il existe, `data/cotes_c1/` ;
 10. `analyse/AUDIT_MODELE.ipynb` → aucun fichier : il vérifie le modèle ;
 11. `analyse/SIMULATION_2026.ipynb` → `output/resultats_simulation_2026.csv` et les autres sorties de la simulation ;
-12. `analyse/SIMULATION_INCERTITUDE.ipynb` → `output/incertitude_titre_2026.csv` et `output/sensibilite_2026.csv` (environ 6 minutes : il simule 300 000 saisons, réparties sur les cœurs du processeur).
+12. `analyse/SIMULATION_INCERTITUDE.ipynb` → `output/incertitude_titre_2026.csv` et `output/sensibilite_2026.csv` (quelques minutes : il simule 320 000 saisons, réparties sur les cœurs du processeur).
 
 ---
 
@@ -235,8 +242,9 @@ Les CSV de `output/` ne sont pas commités : chacun les régénère en local, da
 
 ### Incertitude et sensibilité de la simulation (`analyse/SIMULATION_INCERTITUDE.ipynb`)
 
-- **Intervalles :** la marge de la simulation (± 0,8 point pour Arsenal) ne mesurait que le hasard des tirages. En ajoutant l'incertitude des coefficients du modèle, Arsenal a **23,3 % ± 1,6** de chances de titre (21,7 à 24,9 %). Pour atteindre les quarts, l'incertitude du modèle est 2 à 3 fois plus grande que le hasard de la simulation ;
-- **Sensibilité :** le top 3 (Arsenal, Man City, Bayern) ne change dans **aucun** des 9 scénarios testés (terrain, poids de l'Elo, nouveau format). Le réglage qui compte est le poids de l'Elo : Arsenal varie de 21,6 à 25,1 % dans son intervalle de confiance ;
+- **Simulation (modèle v3, `SIMULATION_2026.ipynb`) :** Arsenal 25,2 % de titre, Bayern 14,9 %, Man City 13,9 %, Barcelone 12,5 %. Le backtest 2024-2025 et 2025-2026 est meilleur qu'avec l'ancien modèle pour les huitièmes et les quarts ;
+- **Intervalles :** la marge de la simulation (± 0,85 point pour Arsenal) ne mesurait que le hasard des tirages. En ajoutant l'incertitude des 6 coefficients du modèle, Arsenal a **25,2 % ± 2,2** de chances de titre (23,0 à 27,5 %). Pour atteindre les quarts, l'incertitude du modèle est environ 3 fois plus grande que le hasard de la simulation ;
+- **Sensibilité :** Arsenal reste 1er dans **les 12** scénarios testés (terrain, Elo, forces, valeur des joueurs récents, nouveau format). Bayern et Man City s'échangent la 2e place selon les scénarios. Ce qui compte est le poids du niveau des clubs : Arsenal varie de 22,7 à 27,0 % dans les intervalles de confiance de l'Elo et des forces ;
 - **Limite :** ces marges ne couvrent pas l'incertitude de l'Elo de départ ni les règles simplifiées : la vraie incertitude est plus grande.
 
 ---

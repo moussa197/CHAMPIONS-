@@ -105,12 +105,13 @@ class ReproductibiliteSimulation(unittest.TestCase):
         noeuds = self.espace['extraire_fonctions_notebook'](SIMULATION)
         exec(compile(ast.Module(body=list(noeuds.values()), type_ignores=[]), '<test>', 'exec'), local)
         parametres = {'intercept': .3, 'coef_ecart_100': .2, 'coef_terrain': .1,
-                      'coef_nouveau_format': .1, 'max_buts': 10}
+                      'coef_force_ad': .25, 'coef_valeur_recente': .05,
+                      'coef_nouveau_format': .1, 'mediane_force_ad': .02, 'max_buts': 10}
         verifier = self.espace['verifier_compatibilite_modele']
         bilan = verifier(MODELE, SIMULATION, parametres, local)
-        self.assertEqual(bilan['cas_valides'], 282)
+        self.assertEqual(bilan['cas_valides'], 564)    # 282 cas sans entrées, 282 avec forces et valeur récente
         fonctions_erronees = dict(local)
-        fonctions_erronees['buts_attendus'] = lambda *args: (999999., 999999.)
+        fonctions_erronees['buts_attendus'] = lambda *args, **entrees: (999999., 999999.)
         with self.assertRaisesRegex(AssertionError, 'buts_attendus diffère'):
             verifier(MODELE, SIMULATION, parametres, fonctions_erronees)
 
