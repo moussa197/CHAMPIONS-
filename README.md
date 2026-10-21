@@ -35,6 +35,7 @@ CHAMPIONS-/
 │   ├── v2_fatigue.ipynb             # Repos et calendrier par club et par match (Ousmane)
 │   ├── v2_participants.ipynb        # Clubs engagés en 2026-2027
 │   ├── v2_forme.ipynb               # Forme récente avant chaque match de C1 (Loan)
+│   ├── v2_forces.ipynb              # Forces d'attaque/défense et valeur des joueurs récents (Moussa)
 │   ├── EDA_v2.ipynb                 # EDA v2 : assemblage des tableaux, corrélations, conclusion (Loan)
 │   ├── MODEL_BASELINE.ipynb         # Modèles de référence (Moussa)
 │   ├── MODEL_POISSON.ipynb          # Modèle de scores retenu (Moussa)
@@ -85,6 +86,12 @@ Lien : https://www.kaggle.com/datasets/adamgbor/club-football-match-data-2000-20
 | `Matches.csv` | Matchs de championnats nationaux avec Elo, forme, tirs et cotes (jusqu'au 3 septembre 2026) |
 
 ⚠️ `Matches.csv` ne contient **que des championnats nationaux**, aucun match de Ligue des Champions. Il servira à mesurer la forme des clubs en championnat.
+
+### 3. Cotes de clôture de C1 (facultatif, pour la comparaison aux bookmakers)
+
+Lien : https://www.kaggle.com/datasets/archangel0x01/football-odds-movements-2018-2026
+
+Copier seulement `matches.csv` et `match_closing.csv` dans **`data/cotes_c1/`**. Ils donnent les cotes de clôture de 4 bookmakers (dont Pinnacle) pour 1 807 matchs de C1, de 2018 à 2026. `MODEL_POISSON.ipynb` (section 10 bis) s'en sert pour comparer le modèle aux bookmakers ; sans ce dossier, la section est simplement sautée.
 
 ### Filtrer la Ligue des Champions
 
@@ -140,14 +147,14 @@ L’application Streamlit utilise le modèle déjà entraîné ; elle ne réentr
 Après avoir installé Python et créé l’environnement `.venv` comme indiqué ci-dessus :
 
 ```bash
-python -m pip install streamlit pandas numpy joblib
+python -m pip install streamlit pandas numpy joblib matplotlib
 python -m streamlit run app/app.py
 ```
 
 Lancez l’application depuis la racine du dépôt. Elle lit les fichiers générés dans `output/`
 et ne réentraîne jamais le modèle. Pour préparer les entrées, exécutez les notebooks de
 préparation jusqu’à `analyse/EDA_v2.ipynb`, puis `analyse/v2_participants.ipynb` pour le
-calendrier. Exécutez ensuite `analyse/MODEL_POISSON.ipynb` pour sauvegarder le modèle déjà
+calendrier. Exécutez ensuite `analyse/v2_forces.ipynb`, puis `analyse/MODEL_POISSON.ipynb` pour sauvegarder le modèle déjà
 entraîné et les prédictions de la phase de ligue. Les résultats de simulation seront affichés
 lorsqu’ils auront été produits par Maxime.
 
@@ -163,11 +170,12 @@ Les CSV de `output/` ne sont pas commités : chacun les régénère en local, da
 4. `analyse/v2_participants.ipynb` → `output/participants_2026.csv` et `output/calendrier_2026.csv` ;
 5. `analyse/EDA_v2.ipynb` → `output/eda_matchs_c1.csv` (une ligne par match de C1, toutes les variables assemblées) ;
 6. `analyse/v2_forme.ipynb` → `output/forme_par_match.csv` (une ligne par match de C1). Il lit `eda_matchs_c1.csv`, et `MODEL_POISSON` le lit ensuite ;
-7. `analyse/MODEL_BASELINE.ipynb` → modèles de référence ;
-8. `analyse/MODEL_POISSON.ipynb` → `output/modele_scores.joblib` et `output/predictions_phase_ligue_2026.csv` ;
-9. `analyse/AUDIT_MODELE.ipynb` → aucun fichier : il vérifie le modèle ;
-10. `analyse/SIMULATION_2026.ipynb` → `output/resultats_simulation_2026.csv` et les autres sorties de la simulation ;
-11. `analyse/SIMULATION_INCERTITUDE.ipynb` → `output/incertitude_titre_2026.csv` et `output/sensibilite_2026.csv` (environ 6 minutes : il simule 300 000 saisons, réparties sur les cœurs du processeur).
+7. `analyse/v2_forces.ipynb` → `output/forces_par_match.csv` (une ligne par match de C1) et `output/forces_participants_2026.csv` (les 36 clubs au 8 septembre 2026). Il lit `eda_matchs_c1.csv`, `elo_participants_2026.csv`, `games.csv`, `appearances.csv` et `player_valuations.csv` ;
+8. `analyse/MODEL_BASELINE.ipynb` → modèles de référence ;
+9. `analyse/MODEL_POISSON.ipynb` → `output/modele_scores.joblib` et `output/predictions_phase_ligue_2026.csv`. Il lit aussi `forces_par_match.csv`, `forces_participants_2026.csv`, `forme_par_match.csv` et, s'il existe, `data/cotes_c1/` ;
+10. `analyse/AUDIT_MODELE.ipynb` → aucun fichier : il vérifie le modèle ;
+11. `analyse/SIMULATION_2026.ipynb` → `output/resultats_simulation_2026.csv` et les autres sorties de la simulation ;
+12. `analyse/SIMULATION_INCERTITUDE.ipynb` → `output/incertitude_titre_2026.csv` et `output/sensibilite_2026.csv` (environ 6 minutes : il simule 300 000 saisons, réparties sur les cœurs du processeur).
 
 ---
 
@@ -209,6 +217,15 @@ Les CSV de `output/` ne sont pas commités : chacun les régénère en local, da
 - **Couverture :** 99 % des matchs ont un écart de forme ; 19 matchs (1,0 %) n'en ont pas ;
 - **Lien avec le résultat :** **+0,23**, mais la forme suit l'Elo (**+0,42**). Une fois l'Elo retiré, il reste **+0,035**, sous la marge de hasard (± 0,046). Dans `MODEL_POISSON` (section 8), la forme est **rejetée** par la règle fixée à l'avance : log loss 0,9156 contre 0,9148, meilleure sur 4 saisons sur 8 seulement.
 
+### Modèle de scores (`analyse/v2_forces.ipynb` et `analyse/MODEL_POISSON.ipynb`)
+
+- **Le modèle :** une régression de Poisson, dans un Pipeline scikit-learn, qui prédit les buts de chaque équipe à partir de l'**écart d'Elo**, des **forces d'attaque et de défense** (apprises chaque mois sur tous les matchs de clubs des 3 années précédentes), de la **valeur des 11 joueurs les plus utilisés lors des 5 derniers matchs**, du **terrain** et du **format** de la compétition. Toutes ces variables sont connues avant le match ;
+- **Le choix :** 7 variantes comparées en validation glissante (2015-2022) avec une règle fixée à l'avance, puis le test 2023-2025 utilisé une seule fois ;
+- **Les résultats :** sur le test 2023-2025, **60,4 % d'accuracy** (303 matchs sur 502), contre 58,6 % pour le modèle Elo + terrain et 50,0 % pour le Dummy ; log loss de **0,893** contre 0,902 (gain significatif) et 1,020. Sur 2025-2026, saison jamais vue, **60,1 %** ;
+- **Face aux bookmakers** (cotes de clôture de C1) : sur les mêmes 502 matchs de test, **Pinnacle fait 60,2 %** et Bet365 60,4 %. Le modèle est au niveau des bookmakers, et mélanger leurs cotes avec le modèle n'améliore rien : 60 % est le plafond sur ces saisons. Sur 2018-2022, les bookmakers restaient meilleurs (62,6 % contre 60,2 %) ;
+- **Rejetés, preuves à l'appui :** la forme récente, la valeur de l'effectif, Dixon-Coles, le blend Dixon-Coles/Poisson, le Poisson bivarié, la binomiale négative, la pondération des saisons récentes, Random Forest et XGBoost ;
+- **Limites :** le nul n'est jamais l'issue la plus probable ; les très gros scores sont un peu sous-estimés ; les données s'arrêtent en juillet 2026, sans les transferts de l'été.
+
 ### Audit du modèle de scores (`analyse/AUDIT_MODELE.ipynb`)
 
 - **Ce qui résiste :** pas de fuite par la cible (avec des scores mélangés, la log loss tombe à 1,026, au niveau « terrain seul ») ; l'Elo officiel est bien connu avant le match ; l'Elo et le terrain apportent un gain réel ; la fuite de l'Elo « maison recalé » (79 matchs, 4,2 %) n'a aucun effet mesurable ; le rejet de la forme est reproduit à l'identique ;
@@ -229,8 +246,8 @@ Les CSV de `output/` ne sont pas commités : chacun les régénère en local, da
 - [x] Collecte des données
 - [x] Analyse exploratoire (EDA v2 : assemblage des tableaux Elo, joueurs et fatigue fait, `output/eda_matchs_c1.csv`)
 - [ ] Nettoyage et harmonisation (scores et phases déjà corrigés dans l'EDA)
-- [ ] Feature engineering (forme récente faite, `v2_forme.ipynb` : rejetée par le modèle)
-- [ ] Entraînement des modèles (modèle de scores de Poisson et son audit faits, `MODEL_POISSON.ipynb` et `AUDIT_MODELE.ipynb`)
+- [x] Feature engineering (forces d'attaque/défense et valeur des joueurs récents retenues, `v2_forces.ipynb` ; forme récente rejetée, `v2_forme.ipynb`)
+- [x] Entraînement des modèles (modèle de scores v3 : 60,4 % sur le test, au niveau des bookmakers, `MODEL_POISSON.ipynb` ; audit, `AUDIT_MODELE.ipynb`)
 - [ ] Prédiction 2026-2027
 
 ---
