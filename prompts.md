@@ -15,6 +15,9 @@ Règle du groupe : l'IA propose, nous vérifions. Aucun chiffre de ce dépôt n'
 | 7 | Maxime | simulation | La demande du 20 octobre 2026 |
 | 8 | Maxime | simulation | Le choix explicite des règles |
 | 9 | Maxime | simulation | Complément : finale, météo et reproductibilité |
+| 10 | Loan | incertitude | Intervalles et sensibilité des probabilités de titre |
+| 11 | Loan | application | Tester l'application et ses limites |
+| 12 | Loan | relecture et installation | Relire les parties v3, nettoyer le README, faciliter l'installation |
 | … | Mouhamedou, Ousmane | à compléter | voir la dernière section |
 
 ---
@@ -130,6 +133,85 @@ Outil : Claude Code (Claude Opus 5.5), dans le dépôt, sur la branche `feature/
 1. **Elo estimé :** recalculer l'Elo complet avec une droite de recalage ajustée sur les **saisons précédentes** seulement, puis refaire le contrôle à écart égal. Si l'écart disparaît, c'était la fuite ; sinon, c'est une qualité de l'estimation.
 2. **Élimination directe :** refaire le découpage par phase sur la **validation glissante 2015-2022** (226 matchs à élimination directe au lieu de 118). Si le gain y devient net, notre conclusion « non démontré » venait du petit échantillon.
 3. **Elo officiel :** refaire la vérification **par club**, avec la table de correspondance des noms de `v2_elo.ipynb`, au lieu de chercher par valeur.
+
+### Prompt 10 — Intervalles et sensibilité des probabilités de titre
+> « avec le temps qu'il reste j'aimerais faire quelques légères améliorations notamment les deux dernières lignes du tableau ainsi que le front pour voir. On va commencer par les deux dernière lignes (modif légère mais impactante) je t'invite a faire une nouvelle branche avec le nom que tu veux en t'inspirant des noms déjà présent sur le github et commencer a faire les modifs. Je veux que quand tu as fini tu me fasses un résumé de ce que tu as fait et de ce que ca apporte de positif et que tu me proposes le messages de commit (si possible un commit par améliorations donc on va faire 1 par 1) »
+
+Les deux lignes du tableau joint : « Mettre des intervalles sur les probabilités de titre » (la marge de la simulation ne mesure que le hasard des tirages : refaire la simulation en tirant au hasard les coefficients du modèle dans leurs intervalles de confiance) et « Analyse de sensibilité : le top 3 bouge-t-il si on change l'avantage du terrain ou le poids de l'Elo ? ».
+
+**Ce que l'IA a proposé :** un notebook à part, `SIMULATION_INCERTITUDE.ipynb`, qui lit le moteur de `SIMULATION_2026` sans le modifier. Il tire 100 jeux de coefficients dans leur loi estimée (covariance de statsmodels), puis teste des scénarios de sensibilité fixés à l'avance. Un commit par amélioration, sur la branche `feature/simulation-incertitude`.
+
+**Ce qu'on a vérifié :**
+- le moteur chargé retrouve **exactement** les 36 probabilités de titre de Maxime (`assert`) ;
+- les coefficients réentraînés avec statsmodels sont ceux de `modele_scores.joblib` (`assert`) ;
+- les résultats ne dépendent pas du nombre de cœurs du processeur : une graine fixe par bloc, testée ;
+- chaque chiffre des textes apparaît dans une sortie de cellule.
+
+**Ce qu'on a corrigé :**
+1. **Un intervalle gonflé.** La première version prenait la fourchette des 100 résultats, qui contient le hasard de nos propres blocs de 2 000 saisons. Corrigé : on retire la variance due à ce hasard, puis on combine la part des coefficients avec la marge de la simulation de 10 000 saisons.
+2. **Un calcul trop long.** Il était estimé à près d'une heure sur un PC Windows. Il est réparti sur les cœurs du processeur (joblib) et le nombre de saisons est réduit, sans changer la méthode.
+3. **Un filtre trop large.** Le chargement des cellules de Maxime attrapait aussi `buts_attendus_matchs` : on cherche maintenant le nom exact de la fonction.
+
+**Ce qu'on a signalé sans le corriger (fichier d'un autre membre) :** `SIMULATION_2026` plantait sous Windows, à cause d'un encodage implicite et d'une empreinte `ast.dump` liée à Python 3.12. Maxime l'a corrigé lui-même (prompt 9).
+
+**Résultat (modèle v3) :** Arsenal 25,2 % de titre, mais avec une fourchette de **23,0 à 27,5 %** au lieu de ± 0,85 point ; il reste 1er dans les 12 scénarios testés.
+
+### Prompt 11 — Tester l'application et ses limites
+> « Peux-tu lancer le front (l'application Streamlit) et l'utiliser pour évaluer ses limites et vérifier que les résultats sont cohérents ?
+>
+> Concrètement :
+> - compare les probabilités affichées avec le CSV des prédictions ;
+> - recalcule à la main quelques matchs ;
+> - teste les cas extrêmes (grand écart d'Elo, terrain neutre) ;
+> - signale tout ce qui paraît incohérent.
+>
+> Ne modifie pas app.py : propose les corrections séparément. »
+
+**Ce que l'IA a fait :** elle a lancé l'application Streamlit dans un navigateur, sur un autre port que celui de l'utilisateur, puis elle a testé les fonctions de l'appli dans un script : les 144 matchs comparés au CSV des prédictions, la symétrie sur terrain neutre, les cas extrêmes.
+
+**Ce qu'on a vérifié :**
+- les probabilités affichées sont identiques au CSV des prédictions pour les 144 matchs (écart de 10⁻¹⁶) ;
+- les buts attendus de AEK–Arsenal (0,79 et 3,14) ont été recalculés à la main ;
+- inverser les deux équipes sur terrain neutre donne exactement les probabilités inverses.
+
+**Ce qu'on a trouvé :**
+- **un bug d'affichage :** « Buts attendus — 1 » au lieu du nom du club, car la variable `domicile` écrasait le nom. Il est corrigé dans la version v3 de l'appli ;
+- **des limites :** le « score le plus probable » valait 1-1 dans 56 matchs sur 144, alors que le modèle surestime déjà ce score. Au-delà de 450 points d'écart d'Elo, le modèle Elo + terrain surestimait les buts du favori (3,96 prévus contre 3,25 réels, sur 28 matchs). La grille des scores s'arrêtait à 5-5 sans le dire, et la page Simulation était un tableau brut. Plusieurs de ces points sont traités dans l'appli v3 : les 5 scores les plus probables avec leur probabilité, une page Simulation lisible.
+
+**Consigne respectée :** `app.py` n'a pas été modifié ; les corrections ont été proposées séparément au groupe et à son auteur (Mouhamedou).
+
+### Prompt 12 — Relire les parties v3, nettoyer le README, faciliter l'installation
+> « Traite les tâches suivantes dans l'ordre. Pour chaque étape terminée, propose-moi le message de commit.
+>
+> 1. Relecture des parties adaptées au modèle v3 (simulation, incertitude, application) :
+> - lis le code et les textes de chaque partie ;
+> - vérifie que les chiffres affichés correspondent aux sorties (Arsenal 25,2 % dans la simulation, 23 à 27 % dans l'incertitude) ;
+> - signale tout ce qui paraît faux ou confus.
+>
+> 2. Nettoyage du README :
+> - avancement : coche « Nettoyage » et « Prédiction 2026-2027 », et ajoute deux lignes cochées pour la simulation et l'application ;
+> - technologies : ajoute Streamlit et statsmodels ;
+> - auteurs : écris « septembre-octobre 2026 » ;
+> - section audit : ajoute une phrase précisant que AUDIT_MODELE a audité le modèle Elo + terrain, et non le v3.
+>
+> 3. Installation plus simple :
+> - crée requirements.txt avec pandas, numpy, matplotlib, jupyter, scikit-learn, xgboost, statsmodels, scipy, joblib et streamlit ;
+> - ajoute .venv/ dans .gitignore ;
+> - supprime le dossier vide notebooks/ ;
+> - dans le README, remplace les longues lignes pip install par python -m pip install -r requirements.txt. »
+
+**Ce que l'IA a fait :** elle a régénéré les 4 notebooks v3 puis relu le code et les textes de la simulation, de l'incertitude et de l'appli. Elle a mis à jour le README et créé `requirements.txt`. Un commit par étape, sur la branche `fix/readme-installation`.
+
+**Ce qu'on a vérifié :**
+- les 4 notebooks v3 (`v2_forces`, `MODEL_POISSON`, `SIMULATION_2026`, `SIMULATION_INCERTITUDE`) tournent de bout en bout sous Windows ;
+- chaque chiffre écrit dans les textes de la simulation et de l'incertitude a été comparé automatiquement aux sorties : Arsenal 25,24 % dans la simulation, 23,0 à 27,5 % dans l'incertitude, et tout le backtest correspondent ;
+- l'application donne les mêmes probabilités que le CSV des prédictions pour les 144 matchs.
+
+**Ce qu'on a corrigé :** dans `SIMULATION_INCERTITUDE` (section 4), les scénarios « Elo ± 25 % » étaient présentés comme un test « bien au-delà de l'intervalle ». C'est faux avec le v3, dont l'intervalle de l'Elo vaut environ ± 29 %. Les scénarios sont renommés, le texte est corrigé, le notebook est réexécuté, et les chiffres sont inchangés.
+
+**Ce qu'on a signalé à leurs auteurs :**
+- `README_SIMULATION.md` ne mentionne pas que le Brier de la finale 2024-2025 est moins bon que la baseline (0,0554 contre 0,0525), en plus de celui du titre ;
+- le bandeau de l'application ne mentionne pas les transferts de l'été 2026, absents des données.
 
 ---
 
