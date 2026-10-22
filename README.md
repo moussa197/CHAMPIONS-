@@ -235,9 +235,12 @@ Les CSV de `output/` ne sont pas commités : chacun les régénère en local, da
 
 ### Audit du modèle de scores (`analyse/AUDIT_MODELE.ipynb`)
 
+> `AUDIT_MODELE` a audité le modèle **Elo + terrain** (avant le modèle v3), pas le modèle v3 actuel : ses conclusions portent sur cette version.
+
 - **Ce qui résiste :** pas de fuite par la cible (avec des scores mélangés, la log loss tombe à 1,026, au niveau « terrain seul ») ; l'Elo officiel est bien connu avant le match ; l'Elo et le terrain apportent un gain réel ; la fuite de l'Elo « maison recalé » (79 matchs, 4,2 %) n'a aucun effet mesurable ; le rejet de la forme est reproduit à l'identique ;
 - **Ce qui est fragile :** en **élimination directe** (118 matchs de test), le modèle n'est **pas démontré meilleur que le Dummy** (intervalle de −0,043 à +0,106) ; le gain du **nouveau format** n'est pas démontré (+0,0016 sur 188 matchs), et il a été choisi en regardant le test ;
 - **Ce qui reste ouvert :** à écart d'Elo égal, les matchs à Elo estimé sont bien mieux prédits que les autres, sur de petits groupes.
+
 ---
 
 ### Incertitude et sensibilité de la simulation (`analyse/SIMULATION_INCERTITUDE.ipynb`)
@@ -253,19 +256,21 @@ Les CSV de `output/` ne sont pas commités : chacun les régénère en local, da
 
 - [x] Collecte des données
 - [x] Analyse exploratoire (EDA v2 : assemblage des tableaux Elo, joueurs et fatigue fait, `output/eda_matchs_c1.csv`)
-- [ ] Nettoyage et harmonisation (scores et phases déjà corrigés dans l'EDA)
+- [x] Nettoyage et harmonisation (scores et phases déjà corrigés dans l'EDA)
 - [x] Feature engineering (forces d'attaque/défense et valeur des joueurs récents retenues, `v2_forces.ipynb` ; forme récente rejetée, `v2_forme.ipynb`)
 - [x] Entraînement des modèles (modèle de scores v3 : 60,4 % sur le test, au niveau des bookmakers, `MODEL_POISSON.ipynb` ; audit, `AUDIT_MODELE.ipynb`)
-- [ ] Prédiction 2026-2027
+- [x] Prédiction 2026-2027
+- [x] Simulation de la saison 2026-2027, avec ses intervalles et son analyse de sensibilité (`SIMULATION_2026.ipynb`, `SIMULATION_INCERTITUDE.ipynb`)
+- [x] Application Streamlit (`app/app.py`)
 
 ---
 
 ## 🛠️ Technologies
 
-Python · Pandas · NumPy · Matplotlib · Scikit-learn · XGBoost · Jupyter · Kaggle
+Python · Pandas · NumPy · Matplotlib · Scikit-learn · statsmodels · XGBoost · Jupyter · Streamlit · Kaggle
 
 ---
 
 ## 👥 Auteurs
 
-Maxime, Loan, Moussa, Mouhamedou et Ousmane — septembre 2026
+Maxime, Loan, Moussa, Mouhamedou et Ousmane — septembre-octobre 2026
