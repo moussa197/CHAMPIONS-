@@ -1,0 +1,11 @@
+# Dépendances du projet : python -m pip install -r requirements.txt
+pandas
+numpy
+matplotlib
+jupyter
+scikit-learn
+xgboost
+statsmodels
+scipy
+joblib
+streamlit

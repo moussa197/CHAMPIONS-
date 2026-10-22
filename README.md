@@ -42,10 +42,13 @@ CHAMPIONS-/
 │   ├── AUDIT_MODELE.ipynb           # Audit « équipe rouge » du modèle de scores (Loan)
 │   ├── SIMULATION_2026.ipynb        # Simulation de la saison 2026-2027 (Maxime, voir README_SIMULATION.md)
 │   └── SIMULATION_INCERTITUDE.ipynb # Intervalles et sensibilité des probabilités de titre (Loan)
-├── notebooks/                       # Notebooks de modélisation (à venir)
+├── app/
+│   └── app.py                       # Application Streamlit (Mouhamedou)
+├── tests/                           # Tests de reproductibilité de la simulation (Maxime)
 ├── data/                            # Datasets CSV (non versionnés, voir ci-dessous)
 ├── output/                          # CSV produits par les notebooks (non versionnés)
 ├── prompts.md                       # Prompts d'IA utilisés, avec ce qu'on a vérifié et corrigé
+├── requirements.txt                 # Paquets Python à installer
 ├── .gitignore
 └── README.md
 ```
@@ -130,8 +133,9 @@ ucl = games[games["competition_id"] == "CL"].sort_values("date")
    ```bash
    python -m venv .venv
    # Windows : .venv\Scripts\activate    —    macOS / Linux : source .venv/bin/activate
-   python -m pip install pandas numpy matplotlib jupyter scikit-learn xgboost statsmodels scipy joblib
+   python -m pip install -r requirements.txt
    ```
+   La liste des paquets est dans `requirements.txt` (notebooks et application).
    Dans VS Code, choisir le noyau `.venv` en haut à droite du notebook.
 3. Télécharger les datasets Kaggle et placer les CSV dans `data/`.
 4. Lancer Jupyter et ouvrir `analyse/EDA_v2.ipynb` (après avoir exécuté les notebooks `v2_*`, voir « Ordre d'exécution ») :
@@ -147,7 +151,7 @@ L’application Streamlit utilise le modèle déjà entraîné ; elle ne réentr
 Après avoir installé Python et créé l’environnement `.venv` comme indiqué ci-dessus :
 
 ```bash
-python -m pip install streamlit pandas numpy joblib matplotlib
+python -m pip install -r requirements.txt
 python -m streamlit run app/app.py
 ```
 
