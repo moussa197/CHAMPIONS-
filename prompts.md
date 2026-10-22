@@ -12,12 +12,12 @@ Règle du groupe : l'IA propose, nous vérifions. Aucun chiffre de ce dépôt n'
 | 4 | Loan | forme et audit | Le cadre du projet et le diagnostic avant de coder |
 | 5 | Loan | forme et audit | Construire la forme récente et auditer le modèle |
 | 6 | Loan | forme et audit | L'IA critique son propre audit |
-| 7 | Maxime | simulation | La demande du 20 octobre 2026 |
-| 8 | Maxime | simulation | Le choix explicite des règles |
-| 9 | Maxime | simulation | Complément : finale, météo et reproductibilité |
-| 10 | Loan | incertitude | Intervalles et sensibilité des probabilités de titre |
-| 11 | Loan | application | Tester l'application et ses limites |
-| 12 | Loan | relecture et installation | Relire les parties v3, nettoyer le README, faciliter l'installation |
+| 7 | Loan | incertitude | Intervalles et sensibilité des probabilités de titre |
+| 8 | Loan | application | Tester l'application et ses limites |
+| 9 | Loan | relecture et installation | Relire les parties v3, nettoyer le README, faciliter l'installation |
+| 10 | Maxime | simulation | La demande du 20 octobre 2026 |
+| 11 | Maxime | simulation | Le choix explicite des règles |
+| 12 | Maxime | simulation | Complément : finale, météo et reproductibilité |
 | … | Mouhamedou, Ousmane | à compléter | voir la dernière section |
 
 ---
@@ -134,7 +134,7 @@ Outil : Claude Code (Claude Opus 5.5), dans le dépôt, sur la branche `feature/
 2. **Élimination directe :** refaire le découpage par phase sur la **validation glissante 2015-2022** (226 matchs à élimination directe au lieu de 118). Si le gain y devient net, notre conclusion « non démontré » venait du petit échantillon.
 3. **Elo officiel :** refaire la vérification **par club**, avec la table de correspondance des noms de `v2_elo.ipynb`, au lieu de chercher par valeur.
 
-### Prompt 10 — Intervalles et sensibilité des probabilités de titre
+### Prompt 7 — Intervalles et sensibilité des probabilités de titre
 > « avec le temps qu'il reste j'aimerais faire quelques légères améliorations notamment les deux dernières lignes du tableau ainsi que le front pour voir. On va commencer par les deux dernière lignes (modif légère mais impactante) je t'invite a faire une nouvelle branche avec le nom que tu veux en t'inspirant des noms déjà présent sur le github et commencer a faire les modifs. Je veux que quand tu as fini tu me fasses un résumé de ce que tu as fait et de ce que ca apporte de positif et que tu me proposes le messages de commit (si possible un commit par améliorations donc on va faire 1 par 1) »
 
 Les deux lignes du tableau joint : « Mettre des intervalles sur les probabilités de titre » (la marge de la simulation ne mesure que le hasard des tirages : refaire la simulation en tirant au hasard les coefficients du modèle dans leurs intervalles de confiance) et « Analyse de sensibilité : le top 3 bouge-t-il si on change l'avantage du terrain ou le poids de l'Elo ? ».
@@ -152,11 +152,11 @@ Les deux lignes du tableau joint : « Mettre des intervalles sur les probabilit�
 2. **Un calcul trop long.** Il était estimé à près d'une heure sur un PC Windows. Il est réparti sur les cœurs du processeur (joblib) et le nombre de saisons est réduit, sans changer la méthode.
 3. **Un filtre trop large.** Le chargement des cellules de Maxime attrapait aussi `buts_attendus_matchs` : on cherche maintenant le nom exact de la fonction.
 
-**Ce qu'on a signalé sans le corriger (fichier d'un autre membre) :** `SIMULATION_2026` plantait sous Windows, à cause d'un encodage implicite et d'une empreinte `ast.dump` liée à Python 3.12. Maxime l'a corrigé lui-même (prompt 9).
+**Ce qu'on a signalé sans le corriger (fichier d'un autre membre) :** `SIMULATION_2026` plantait sous Windows, à cause d'un encodage implicite et d'une empreinte `ast.dump` liée à Python 3.12. Maxime l'a corrigé lui-même (prompt 12).
 
 **Résultat (modèle v3) :** Arsenal 25,2 % de titre, mais avec une fourchette de **23,0 à 27,5 %** au lieu de ± 0,85 point ; il reste 1er dans les 12 scénarios testés.
 
-### Prompt 11 — Tester l'application et ses limites
+### Prompt 8 — Tester l'application et ses limites
 > « Peux-tu lancer le front (l'application Streamlit) et l'utiliser pour évaluer ses limites et vérifier que les résultats sont cohérents ?
 >
 > Concrètement :
@@ -180,7 +180,7 @@ Les deux lignes du tableau joint : « Mettre des intervalles sur les probabilit�
 
 **Consigne respectée :** `app.py` n'a pas été modifié ; les corrections ont été proposées séparément au groupe et à son auteur (Mouhamedou).
 
-### Prompt 12 — Relire les parties v3, nettoyer le README, faciliter l'installation
+### Prompt 9 — Relire les parties v3, nettoyer le README, faciliter l'installation
 > « Traite les tâches suivantes dans l'ordre. Pour chaque étape terminée, propose-moi le message de commit.
 >
 > 1. Relecture des parties adaptées au modèle v3 (simulation, incertitude, application) :
@@ -219,7 +219,7 @@ Les deux lignes du tableau joint : « Mettre des intervalles sur les probabilit�
 
 *Reprend intégralement `prompts_maxime.md`, supprimé de la racine une fois intégré ici.*
 
-### Prompt 7 — La demande du 20 octobre 2026
+### Prompt 10 — La demande du 20 octobre 2026
 **La demande (résumée par Maxime) :** réaliser la partie simulation attribuée à Maxime dans le projet CHAMPIONS-, récupérer le modèle de scores du groupe et créer la branche `feature/simulation`.
 
 Pièces fournies : `consignes_equipe.md` et deux captures précisant la répartition du travail, la branche `feature/simulation` et le livrable `SIMULATION_2026.ipynb`. Les consignes techniques du bloc Maxime servent de cahier des charges ; ce ne sont pas des résultats à recopier.
@@ -241,7 +241,7 @@ Les résultats ont été recalculés à partir des fichiers locaux.
 - des bornes de Wilson, pour ne pas présenter « zéro titre observé » comme une impossibilité ;
 - la formule et les contrôles de durée ont aussi été relus et corrigés.
 
-### Prompt 8 — Le choix explicite des règles
+### Prompt 11 — Le choix explicite des règles
 L'IA a signalé des différences entre les consignes du groupe et le règlement de l'UEFA. Réponse réellement donnée par Maxime :
 
 > « Suivre les consignes du groupe, avec les simplifications expliquées »
@@ -250,7 +250,7 @@ L'IA a signalé des différences entre les consignes du groupe et le règlement 
 
 **Ce qui reste à faire :** le bilan garde les contre-exemples : pour le titre 2024-2025, le score de Brier est moins bon que celui de la baseline uniforme. Ces choix et leurs limites doivent encore être **relus par un autre membre du groupe** : les contrôles automatiques ne remplacent pas cette relecture.
 
-### Prompt 9 — Complément : finale, météo et reproductibilité
+### Prompt 12 — Complément : finale, météo et reproductibilité
 **La demande (résumée par Maxime), le 20 octobre 2026 :** compléter la finale de l'année, examiner l'intégration de la météo, et résoudre les deux blocages remontés par un membre du groupe sous Windows (décodage cp1252 et comparaison des fonctions du modèle).
 
 **Ce qu'on a vérifié :**
