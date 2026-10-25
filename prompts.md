@@ -4,7 +4,7 @@ Livrable demandé par le prof. Pour chaque prompt : **ce que l'IA a proposé**, 
 
 Règle du groupe : l'IA propose, nous vérifions. Aucun chiffre de ce dépôt n'est repris d'une réponse de l'IA sans avoir été recalculé dans un notebook qui tourne de bout en bout.
 
-| # | Auteur / contribution | Partie | Prompt |
+| # | Auteur | Partie | Prompt |
 |---|---|---|---|
 | 1 | Moussa | modèle | Diagnostic avant de coder |
 | 2 | Moussa | modèle | Un pipeline vérifiable |
@@ -15,11 +15,12 @@ Règle du groupe : l'IA propose, nous vérifions. Aucun chiffre de ce dépôt n'
 | 7 | Maxime | simulation | La demande du 20 octobre 2026 |
 | 8 | Maxime | simulation | Le choix explicite des règles |
 | 9 | Maxime | simulation | Complément : finale, météo et reproductibilité |
-| 10 | Mohammedu — synthèse | analyse des joueurs | Exemple de formulation ajouté après l'analyse |
-| 11 | Ousmane — synthèse | analyse de la fatigue | Exemple de formulation ajouté après l'analyse |
-| 12 | Mohammedu et Ousmane — synthèse répartie | modèle v3 | Exemple de formulation ajouté après l'analyse : forces et joueurs récents |
-| 13 | Ousmane — synthèse | modèle v3 | Exemple de formulation ajouté après l'analyse : comparaison aux bookmakers |
-| 14 | Ousmane — synthèse | simulation et application | Exemple de formulation ajouté après l'analyse : intégration du modèle v3 |
+| 10 | Mohammedu | joueurs et effectif | Synthèse après analyse — exemple de formulation, pas un prompt historique |
+| 11 | Ousmane | fatigue et calendrier | Synthèse après analyse — exemple de formulation, pas un prompt historique |
+| 12 | Ousmane | forces d'attaque et de défense | Synthèse après analyse — exemple de formulation, pas un prompt historique |
+| 13 | Mohammedu | valeur des joueurs récents | Synthèse après analyse — exemple de formulation, pas un prompt historique |
+| 14 | Ousmane | bookmakers | Synthèse après analyse — exemple de formulation, pas un prompt historique |
+| 15 | Ousmane | simulation et application | Synthèse après analyse — exemple de formulation, pas un prompt historique |
 
 ---
 
@@ -189,9 +190,9 @@ L'IA a signalé des différences entre les consignes du groupe et le règlement 
 
 Cette partie documente les notebooks et l'application du projet après analyse. Le
 travail de synthèse est réparti ainsi : **Mohammedu** couvre l'analyse des joueurs et
-la partie valeur des joueurs récents ; **Ousmane** couvre la fatigue et le calendrier,
-les forces des équipes, la comparaison aux bookmakers ainsi que la simulation et
-l'application. Cette répartition concerne la présente synthèse rétrospective ; elle
+la valeur des joueurs récents ; **Ousmane** couvre la fatigue et le calendrier, les
+forces d'attaque et de défense, la comparaison aux bookmakers ainsi que la simulation
+et l'application. Cette répartition concerne la présente synthèse rétrospective ; elle
 n'attribue pas à l'un ou l'autre la réalisation initiale des travaux du groupe.
 
 Ousmane a précisé ne pas avoir rédigé de prompts avant sa demande d'aide. Les
@@ -269,10 +270,7 @@ au moins un match `domestic_league` dans les données, avec l'Elo connu avant le
 
 ## Exemples de formulation après analyse des travaux v3
 
-### Exemple 12 — Forces d'attaque/défense et valeur des joueurs récents
-
-**Répartition de la synthèse :** Ousmane couvre les forces d'attaque et de défense ;
-Mohammedu couvre la valeur des joueurs récents.
+### Ousmane — Exemple 12 : forces d'attaque et de défense
 
 **Exemple de formulation rédigé après l'analyse de `analyse/v2_forces.ipynb` et
 `analyse/MODEL_POISSON.ipynb` :**
@@ -280,33 +278,48 @@ Mohammedu couvre la valeur des joueurs récents.
 > « Fais évoluer le modèle de buts au-delà de l'Elo sans fuite temporelle. Estime une
 > force d'attaque et une force de défense par club à partir des matchs de clubs récents
 > de toutes compétitions, avec une fenêtre de trois ans, et ne conserve pour une
-> rencontre que les matchs antérieurs au premier jour de son mois. Construis aussi une
-> mesure de valeur de l'effectif à partir des 11 joueurs les plus utilisés sur les
-> 5 derniers matchs du club et de leur dernière valorisation connue avant la rencontre.
-> Décris le sens des variables, les données manquantes et les limites ; compare les
-> ajouts à une baseline selon une validation chronologique fixée avant le test. Exporte
-> les features historiques au grain match et celles des participants au format de
-> saison. N'affirme aucun gain avant exécution et comparaison reproductible. »
+> rencontre que les matchs antérieurs au premier jour de son mois. Décris le sens des
+> variables et les limites liées aux données ; compare leur apport au modèle de départ
+> avec une validation chronologique. Exporte les forces pré-match sans utiliser
+> d'informations postérieures à la rencontre. N'affirme aucun gain avant exécution et
+> comparaison reproductible. »
 
 **Ce que les livrables documentent (sans historique des propositions de l'IA) :**
-`v2_forces.ipynb` estime l'attaque et la défense
-sur les matchs de clubs des trois années précédentes ; le terme de match combine
-l'attaque de l'équipe et la défense adverse. La valeur récente est fondée sur les 11
-joueurs les plus utilisés lors des 5 derniers matchs, avec des valorisations antérieures
-au match. Le modèle de scores v3 ajoute ces informations à l'Elo, au terrain et au
+`v2_forces.ipynb` estime l'attaque et la défense sur les matchs de clubs des trois
+années précédentes ; le terme de match combine l'attaque de l'équipe et la défense
+adverse. Le modèle de scores v3 ajoute ces informations à l'Elo, au terrain et au
 format.
 
 **Précisions visibles dans les notebooks :**
-- les dates de coupure empêchent l'utilisation de matchs ou de valeurs postérieurs à
-  la date de prédiction ;
-- le notebook signale que les données s'arrêtent au début de juillet 2026 : les
-  participants de 2026-2027 n'intègrent donc pas les transferts de l'été ;
+- les dates de coupure empêchent l'utilisation de matchs postérieurs à la date de
+  prédiction ;
 - les clubs ayant peu de matchs ou des matchs récents trop anciens sont explicitement
   signalés comme ayant des informations fragiles ;
-- les features retenues et les métriques de modèle sont contrôlées par validation
-  chronologique, plutôt que déduites d'une simple corrélation.
+- les variables et performances du modèle sont évaluées par validation chronologique.
 
-### Ousmane — Exemple 13 : comparaison aux bookmakers
+### Mohammedu — Exemple 13 : valeur des joueurs récents
+
+**Exemple de formulation rédigé après l'analyse de `analyse/v2_forces.ipynb` et
+`analyse/MODEL_POISSON.ipynb` :**
+
+> « Construis une mesure de la valeur de l'effectif disponible avant chaque match à
+> partir des 11 joueurs les plus utilisés lors des 5 derniers matchs du club et de
+> leur dernière valorisation connue avant le match. Vérifie que les apparitions et
+> valorisations utilisées précèdent la rencontre, signale les effectifs dont les
+> données sont anciennes ou insuffisantes, et exporte une mesure par équipe et par
+> match. Compare son apport au modèle avec une validation chronologique ; ne conclus
+> pas à un effet causal à partir d'une simple association. »
+
+**Ce que les livrables documentent (sans historique des propositions de l'IA) :**
+`v2_forces.ipynb` calcule une valeur récente à partir des 11 joueurs les plus utilisés
+sur les 5 derniers matchs et de valorisations antérieures au match.
+
+**Précisions visibles dans les notebooks :**
+- les dates de coupure empêchent l'utilisation de valorisations postérieures au match ;
+- le notebook signale les clubs dont les derniers matchs connus sont anciens ;
+- les données des participants s'arrêtent avant les transferts de l'été 2026.
+
+### Ousmane — Exemple 14 : comparaison aux bookmakers
 
 **Exemple de formulation rédigé après l'analyse de la section 10 bis de
 `analyse/MODEL_POISSON.ipynb` :**
@@ -336,7 +349,7 @@ est choisi sur 2018-2022 avant l'évaluation 2023-2025.
   sans prétendre que le modèle le bat significativement ; les cotes de clôture ne sont
   pas présentées comme disponibles pour simuler tous les matchs futurs d'une saison.
 
-### Ousmane — Exemple 14 : adapter la simulation et l'application au modèle v3
+### Ousmane — Exemple 15 : adapter la simulation et l'application au modèle v3
 
 **Exemple de formulation rédigé après l'analyse de `analyse/SIMULATION_2026.ipynb`,
 `analyse/README_SIMULATION.md` et `app/app.py` :**
