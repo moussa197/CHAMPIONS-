@@ -4,7 +4,7 @@ Livrable demandé par le prof. Pour chaque prompt : **ce que l'IA a proposé**, 
 
 Règle du groupe : l'IA propose, nous vérifions. Aucun chiffre de ce dépôt n'est repris d'une réponse de l'IA sans avoir été recalculé dans un notebook qui tourne de bout en bout.
 
-| # | Auteur | Partie | Prompt |
+| # | Auteur / contribution | Partie | Prompt |
 |---|---|---|---|
 | 1 | Moussa | modèle | Diagnostic avant de coder |
 | 2 | Moussa | modèle | Un pipeline vérifiable |
@@ -15,11 +15,11 @@ Règle du groupe : l'IA propose, nous vérifions. Aucun chiffre de ce dépôt n'
 | 7 | Maxime | simulation | La demande du 20 octobre 2026 |
 | 8 | Maxime | simulation | Le choix explicite des règles |
 | 9 | Maxime | simulation | Complément : finale, météo et reproductibilité |
-| 10 | — | analyse des joueurs | Exemple de formulation ajouté après l'analyse |
-| 11 | — | analyse de la fatigue | Exemple de formulation ajouté après l'analyse |
-| 12 | — | modèle v3 | Exemple de formulation ajouté après l'analyse : forces et joueurs récents |
-| 13 | — | modèle v3 | Exemple de formulation ajouté après l'analyse : comparaison aux bookmakers |
-| 14 | — | simulation et application | Exemple de formulation ajouté après l'analyse : intégration du modèle v3 |
+| 10 | Barryflex88 — analyse | analyse des joueurs | Exemple de formulation ajouté après l'analyse |
+| 11 | Barryflex88 — analyse | analyse de la fatigue | Exemple de formulation ajouté après l'analyse |
+| 12 | Barryflex88 — analyse | modèle v3 | Exemple de formulation ajouté après l'analyse : forces et joueurs récents |
+| 13 | Barryflex88 — analyse | modèle v3 | Exemple de formulation ajouté après l'analyse : comparaison aux bookmakers |
+| 14 | Barryflex88 — analyse | simulation et application | Exemple de formulation ajouté après l'analyse : intégration du modèle v3 |
 
 ---
 
