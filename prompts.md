@@ -15,7 +15,11 @@ Règle du groupe : l'IA propose, nous vérifions. Aucun chiffre de ce dépôt n'
 | 7 | Maxime | simulation | La demande du 20 octobre 2026 |
 | 8 | Maxime | simulation | Le choix explicite des règles |
 | 9 | Maxime | simulation | Complément : finale, météo et reproductibilité |
-| … | Mouhamedou, Ousmane | à compléter | voir la dernière section |
+| 10 | — | analyse des joueurs | Exemple de formulation ajouté après l'analyse |
+| 11 | — | analyse de la fatigue | Exemple de formulation ajouté après l'analyse |
+| 12 | — | modèle v3 | Exemple de formulation ajouté après l'analyse : forces et joueurs récents |
+| 13 | — | modèle v3 | Exemple de formulation ajouté après l'analyse : comparaison aux bookmakers |
+| 14 | — | simulation et application | Exemple de formulation ajouté après l'analyse : intégration du modèle v3 |
 
 ---
 
@@ -181,12 +185,184 @@ L'IA a signalé des différences entre les consignes du groupe et le règlement 
 
 ---
 
-## Prompts des autres membres (à compléter)
+## Analyse et documentation rétrospectives
 
-Pour chacun : le prompt **exact**, ce que l'IA a proposé, ce qu'on a vérifié, ce qu'on a corrigé ou refusé. **Ne rien reconstituer de mémoire** : coller le vrai prompt.
+Cette partie présente le travail de documentation réalisé après analyse des notebooks
+et de l'application du projet. Barryflex88 a précisé ne pas avoir rédigé de prompts
+avant sa demande d'aide. Les formulations ci-dessous sont donc des exemples préparés
+après l'analyse pour décrire les sujets et les consignes utiles ; elles ne sont pas des
+messages réellement envoyés à une IA pendant le développement.
 
-### Mouhamedou — joueurs et effectif
-*À compléter par Mouhamedou.*
+La contribution de Barryflex88 dans cette partie est cette analyse documentaire et sa
+synthèse rétrospective ; elle porte sur le travail déjà présent dans le dépôt.
 
-### Ousmane — fatigue et calendrier
-*À compléter par Ousmane.*
+Les prompts 1 à 9 figuraient déjà dans ce document, mais leur historique n'a pas été
+vérifié dans le cadre de cette contribution. On ne tire aucune conclusion ici sur les
+prompts éventuellement utilisés par les autres membres. Les faits et résultats
+résumés plus bas proviennent des notebooks, du README et de l'application versionnés ;
+ils décrivent le contenu analysé, sans attribuer à Barryflex88 les développements
+initiaux réalisés par le groupe.
+
+### Exemple 10 — Analyse des joueurs et de l'effectif
+
+**Exemple de formulation rédigé après l'analyse de `analyse/v2_joueurs.ipynb` :**
+
+> « Analyse les joueurs et les effectifs des clubs de Ligue des champions à partir des
+> CSV présents dans `data/`. Avant de coder, vérifie le grain des tables, les colonnes,
+> la couverture des données et les risques de fuite temporelle. Construis un notebook
+> reproductible qui étudie la valeur pré-match des joueurs, l'âge, la rotation et la
+> dépendance au meilleur buteur. Recalcule les buts à partir des événements `Goals`
+> afin d'exclure les tirs au but. Pour toute variable utilisée dans une prédiction,
+> n'utilise que des informations connues avant le match : valeurs de joueurs datées
+> avant le coup d'envoi et statistiques de buts de la saison précédente. Présente
+> question, résultats calculés, interprétation et limites ; exporte un CSV au grain
+> équipe-match. N'invente ni données ni résultats et indique les fichiers manquants. »
+
+**Ce que le notebook documente (sans historique des propositions de l'IA) :**
+`v2_joueurs.ipynb` recalcule le score à partir des
+événements pour ne pas compter les tirs au but comme des buts du match, puis étudie
+valeur pré-match, âge, rotation et dépendance au meilleur buteur. Le livrable est
+`output/joueurs_par_match.csv`, une ligne par équipe et par match.
+
+**Précisions visibles dans le notebook :**
+- les événements `Goals` permettent de vérifier le score sans tirs au but ; la sortie
+  du notebook indique 1 871 matchs de C1 vérifiables, dont 8 avec séance de tirs au but,
+  et 8 scores corrigés ;
+- les variables de rotation et de dépendance au meilleur buteur sont calculées avec
+  la saison précédente, pas avec la fin de la saison en cours ;
+- `player_valuations.csv` est une entrée nécessaire et non versionnée : le notebook
+  explique comment la fournir localement au lieu de fabriquer des valeurs manquantes ;
+- les associations observées ne sont pas présentées comme des effets causaux.
+
+### Exemple 11 — Analyse de la fatigue et de la couverture des calendriers
+
+**Exemple de formulation rédigé après l'analyse de `analyse/v2_fatigue.ipynb` :**
+
+> « À partir de `games.csv` et des Elo publiés avant chaque match, étudie si le repos
+> entre deux matchs est associé aux résultats des clubs en Ligue des champions, une
+> fois le niveau des adversaires pris en compte. Définis précisément les jours de repos
+> et la charge de matchs sur les 30 jours précédents ; exclue le match étudié et ne
+> considère pas comme antérieur un match le même jour si l'ordre n'est pas connu.
+> Détecte les saisons où la couverture des matchs de championnat manque et n'interprète
+> pas une absence de match dans un calendrier incomplet comme du repos. Distingue les
+> indicateurs pré-match des descriptions de saison, calcule les résultats dans un
+> notebook reproductible et expose les limites des données, notamment le fait que les
+> minutes jouées par les joueurs ne sont pas observées. »
+
+**Ce que le notebook documente (sans historique des propositions de l'IA) :** les jours de repos sont calculés depuis le dernier
+match antérieur visible dans `games.csv` ; la charge compte les matchs des 30 jours
+avant la rencontre. L'analyse de repos est limitée aux clubs dont la saison comporte
+au moins un match `domestic_league` dans les données, avec l'Elo connu avant le match.
+
+**Précisions visibles dans le notebook :**
+- un match disputé le même jour n'est pas supposé antérieur, faute d'heure ou d'ordre
+  fiable ;
+- une compétition par saison est décrite comme une information de saison complète,
+  donc non disponible au début de cette saison ;
+- la présence d'un match de championnat indique une couverture détectée, mais ne
+  prouve pas que tout le calendrier est complet ; les clubs sans couverture détectée
+  sont exclus de l'analyse de repos ;
+- les indicateurs concernent le club, et ne mesurent ni les minutes jouées ni la
+  fatigue individuelle.
+
+## Exemples de formulation après analyse des travaux v3
+
+### Exemple 12 — Forces d'attaque/défense et valeur des joueurs récents
+
+**Exemple de formulation rédigé après l'analyse de `analyse/v2_forces.ipynb` et
+`analyse/MODEL_POISSON.ipynb` :**
+
+> « Fais évoluer le modèle de buts au-delà de l'Elo sans fuite temporelle. Estime une
+> force d'attaque et une force de défense par club à partir des matchs de clubs récents
+> de toutes compétitions, avec une fenêtre de trois ans, et ne conserve pour une
+> rencontre que les matchs antérieurs au premier jour de son mois. Construis aussi une
+> mesure de valeur de l'effectif à partir des 11 joueurs les plus utilisés sur les
+> 5 derniers matchs du club et de leur dernière valorisation connue avant la rencontre.
+> Décris le sens des variables, les données manquantes et les limites ; compare les
+> ajouts à une baseline selon une validation chronologique fixée avant le test. Exporte
+> les features historiques au grain match et celles des participants au format de
+> saison. N'affirme aucun gain avant exécution et comparaison reproductible. »
+
+**Ce que les livrables documentent (sans historique des propositions de l'IA) :**
+`v2_forces.ipynb` estime l'attaque et la défense
+sur les matchs de clubs des trois années précédentes ; le terme de match combine
+l'attaque de l'équipe et la défense adverse. La valeur récente est fondée sur les 11
+joueurs les plus utilisés lors des 5 derniers matchs, avec des valorisations antérieures
+au match. Le modèle de scores v3 ajoute ces informations à l'Elo, au terrain et au
+format.
+
+**Précisions visibles dans les notebooks :**
+- les dates de coupure empêchent l'utilisation de matchs ou de valeurs postérieurs à
+  la date de prédiction ;
+- le notebook signale que les données s'arrêtent au début de juillet 2026 : les
+  participants de 2026-2027 n'intègrent donc pas les transferts de l'été ;
+- les clubs ayant peu de matchs ou des matchs récents trop anciens sont explicitement
+  signalés comme ayant des informations fragiles ;
+- les features retenues et les métriques de modèle sont contrôlées par validation
+  chronologique, plutôt que déduites d'une simple corrélation.
+
+### Exemple 13 — Comparaison aux bookmakers
+
+**Exemple de formulation rédigé après l'analyse de la section 10 bis de
+`analyse/MODEL_POISSON.ipynb` :**
+
+> « Compare les probabilités 1X2 du modèle aux cotes de clôture de bookmakers pour les
+> matchs de Ligue des champions communs. Relie les matchs avec une méthode explicite,
+> retire la marge des cotes, et compare les modèles sur exactement les mêmes rencontres.
+> Choisis tout poids d'un éventuel mélange sur les saisons d'apprentissage seulement,
+> puis évalue-le sur le test chronologique 2023-2025 sans le régler sur ce test. Rapporte
+> l'accuracy et la log loss, l'incertitude de la différence, le nombre de matchs reliés,
+> les limites de couverture et l'absence de cotes futures pour une simulation de saison.
+> Si les fichiers de cotes facultatifs sont absents, explique que l'analyse est ignorée ;
+> ne fabrique ni cote ni résultat. »
+
+**Ce que le notebook documente (sans historique des propositions de l'IA) :** les cotes de clôture disponibles pour quatre
+bookmakers sont reliées aux matchs, converties en probabilités après retrait de la
+marge, puis comparées sur les observations communes. Le poids du mélange avec Pinnacle
+est choisi sur 2018-2022 avant l'évaluation 2023-2025.
+
+**Précisions visibles dans le notebook :**
+- les données de cotes sont facultatives ; l'analyse est sautée si le dossier local
+  n'existe pas ;
+- le lien porte sur date et noms d'équipes, avec un contrôle des scores et des
+  rencontres effectivement appariées ;
+- le test du mélange n'est pas utilisé pour choisir son poids ;
+- les résultats publiés indiquent un niveau comparable au bookmaker sur 2023-2025,
+  sans prétendre que le modèle le bat significativement ; les cotes de clôture ne sont
+  pas présentées comme disponibles pour simuler tous les matchs futurs d'une saison.
+
+### Exemple 14 — Adapter la simulation et l'application au modèle v3
+
+**Exemple de formulation rédigé après l'analyse de `analyse/SIMULATION_2026.ipynb`,
+`analyse/README_SIMULATION.md` et `app/app.py` :**
+
+> « Fais évoluer la simulation de la saison 2026-2027 pour utiliser le modèle de scores
+> v3, qui combine Elo, terrain, format, forces d'attaque/défense et valeur récente des
+> joueurs. Utilise uniquement les features connues avant le début de la saison ; garde
+> fixes les forces et valeurs pendant la simulation si aucune mise à jour future valide
+> n'est disponible, et fais évoluer l'Elo seulement selon la règle définie. Mets à jour
+> les backtests avec les mêmes entrées pré-match et un entraînement strictement antérieur
+> à chaque saison testée. Adapte aussi l'application pour lire les CSV et paramètres
+> v3, calculer les probabilités d'un match, afficher les résultats de simulation et
+> vérifier qu'ils correspondent aux prédictions exportées. Garde des messages explicites
+> si une entrée manque, documente les règles simplifiées et les limites, puis teste
+> reproductibilité, classement, tableau et calcul des probabilités. Ne réentraîne pas
+> implicitement le modèle dans l'application. »
+
+**Ce que les livrables documentent (sans historique des propositions de l'IA) :** la simulation de 10 000 saisons prend en compte
+les forces et valeurs récentes au départ, les garde fixes pendant la saison simulée,
+et fait évoluer l'Elo. `app/app.py` charge les paramètres et fichiers exportés,
+reconstruit les variables v3 pour un match et expose aussi les résultats de simulation.
+
+**Précisions visibles dans les livrables :**
+- les entrées v3 de l'application sont calculées à partir des `club_id`, attaques,
+  défenses et valeurs récentes ; les probabilités sont comparées aux prédictions
+  exportées au démarrage ;
+- fichiers ou colonnes manquants déclenchent des messages d'erreur explicites ; le
+  modèle n'est pas réentraîné silencieusement par l'application ;
+- la simulation conserve les simplifications décidées par le groupe et les documente
+  comme telles, plutôt que de les présenter comme le règlement UEFA exact ;
+- les backtests et les prévisions de saison sont distingués ; la finale ajoutée pour
+  l'évaluation ne sert pas à entraîner le modèle de production ;
+- les cotes des bookmakers sont écartées des matchs futurs de la simulation : elles
+  ne sont pas disponibles à l'horizon de prévision de septembre.
