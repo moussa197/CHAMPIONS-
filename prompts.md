@@ -15,11 +15,11 @@ Règle du groupe : l'IA propose, nous vérifions. Aucun chiffre de ce dépôt n'
 | 7 | Maxime | simulation | La demande du 20 octobre 2026 |
 | 8 | Maxime | simulation | Le choix explicite des règles |
 | 9 | Maxime | simulation | Complément : finale, météo et reproductibilité |
-| 10 | Barryflex88 — analyse | analyse des joueurs | Exemple de formulation ajouté après l'analyse |
-| 11 | Barryflex88 — analyse | analyse de la fatigue | Exemple de formulation ajouté après l'analyse |
-| 12 | Barryflex88 — analyse | modèle v3 | Exemple de formulation ajouté après l'analyse : forces et joueurs récents |
-| 13 | Barryflex88 — analyse | modèle v3 | Exemple de formulation ajouté après l'analyse : comparaison aux bookmakers |
-| 14 | Barryflex88 — analyse | simulation et application | Exemple de formulation ajouté après l'analyse : intégration du modèle v3 |
+| 10 | Mohammedu — synthèse | analyse des joueurs | Exemple de formulation ajouté après l'analyse |
+| 11 | Ousmane — synthèse | analyse de la fatigue | Exemple de formulation ajouté après l'analyse |
+| 12 | Mohammedu et Ousmane — synthèse répartie | modèle v3 | Exemple de formulation ajouté après l'analyse : forces et joueurs récents |
+| 13 | Ousmane — synthèse | modèle v3 | Exemple de formulation ajouté après l'analyse : comparaison aux bookmakers |
+| 14 | Ousmane — synthèse | simulation et application | Exemple de formulation ajouté après l'analyse : intégration du modèle v3 |
 
 ---
 
@@ -187,23 +187,25 @@ L'IA a signalé des différences entre les consignes du groupe et le règlement 
 
 ## Analyse et documentation rétrospectives
 
-Cette partie présente le travail de documentation réalisé après analyse des notebooks
-et de l'application du projet. Barryflex88 a précisé ne pas avoir rédigé de prompts
-avant sa demande d'aide. Les formulations ci-dessous sont donc des exemples préparés
-après l'analyse pour décrire les sujets et les consignes utiles ; elles ne sont pas des
-messages réellement envoyés à une IA pendant le développement.
+Cette partie documente les notebooks et l'application du projet après analyse. Le
+travail de synthèse est réparti ainsi : **Mohammedu** couvre l'analyse des joueurs et
+la partie valeur des joueurs récents ; **Ousmane** couvre la fatigue et le calendrier,
+les forces des équipes, la comparaison aux bookmakers ainsi que la simulation et
+l'application. Cette répartition concerne la présente synthèse rétrospective ; elle
+n'attribue pas à l'un ou l'autre la réalisation initiale des travaux du groupe.
 
-La contribution de Barryflex88 dans cette partie est cette analyse documentaire et sa
-synthèse rétrospective ; elle porte sur le travail déjà présent dans le dépôt.
+Ousmane a précisé ne pas avoir rédigé de prompts avant sa demande d'aide. Les
+formulations ci-dessous sont donc des exemples préparés après l'analyse pour décrire
+les sujets et les consignes utiles ; elles ne sont pas des messages réellement envoyés
+à une IA pendant le développement. Aucune conclusion n'est tirée ici sur les prompts
+éventuellement utilisés par Mohammedu ou d'autres membres.
 
 Les prompts 1 à 9 figuraient déjà dans ce document, mais leur historique n'a pas été
-vérifié dans le cadre de cette contribution. On ne tire aucune conclusion ici sur les
-prompts éventuellement utilisés par les autres membres. Les faits et résultats
-résumés plus bas proviennent des notebooks, du README et de l'application versionnés ;
-ils décrivent le contenu analysé, sans attribuer à Barryflex88 les développements
-initiaux réalisés par le groupe.
+vérifié dans le cadre de cette contribution. Les faits et résultats résumés plus bas
+proviennent des notebooks, du README et de l'application versionnés ; ils décrivent
+le contenu analysé sans le présenter comme du code écrit dans cette contribution.
 
-### Exemple 10 — Analyse des joueurs et de l'effectif
+### Mohammedu — Exemple 10 : analyse des joueurs et de l'effectif
 
 **Exemple de formulation rédigé après l'analyse de `analyse/v2_joueurs.ipynb` :**
 
@@ -234,7 +236,7 @@ valeur pré-match, âge, rotation et dépendance au meilleur buteur. Le livrable
   explique comment la fournir localement au lieu de fabriquer des valeurs manquantes ;
 - les associations observées ne sont pas présentées comme des effets causaux.
 
-### Exemple 11 — Analyse de la fatigue et de la couverture des calendriers
+### Ousmane — Exemple 11 : analyse de la fatigue et de la couverture des calendriers
 
 **Exemple de formulation rédigé après l'analyse de `analyse/v2_fatigue.ipynb` :**
 
@@ -269,6 +271,9 @@ au moins un match `domestic_league` dans les données, avec l'Elo connu avant le
 
 ### Exemple 12 — Forces d'attaque/défense et valeur des joueurs récents
 
+**Répartition de la synthèse :** Ousmane couvre les forces d'attaque et de défense ;
+Mohammedu couvre la valeur des joueurs récents.
+
 **Exemple de formulation rédigé après l'analyse de `analyse/v2_forces.ipynb` et
 `analyse/MODEL_POISSON.ipynb` :**
 
@@ -301,7 +306,7 @@ format.
 - les features retenues et les métriques de modèle sont contrôlées par validation
   chronologique, plutôt que déduites d'une simple corrélation.
 
-### Exemple 13 — Comparaison aux bookmakers
+### Ousmane — Exemple 13 : comparaison aux bookmakers
 
 **Exemple de formulation rédigé après l'analyse de la section 10 bis de
 `analyse/MODEL_POISSON.ipynb` :**
@@ -331,7 +336,7 @@ est choisi sur 2018-2022 avant l'évaluation 2023-2025.
   sans prétendre que le modèle le bat significativement ; les cotes de clôture ne sont
   pas présentées comme disponibles pour simuler tous les matchs futurs d'une saison.
 
-### Exemple 14 — Adapter la simulation et l'application au modèle v3
+### Ousmane — Exemple 14 : adapter la simulation et l'application au modèle v3
 
 **Exemple de formulation rédigé après l'analyse de `analyse/SIMULATION_2026.ipynb`,
 `analyse/README_SIMULATION.md` et `app/app.py` :**
