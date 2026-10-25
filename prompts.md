@@ -15,12 +15,12 @@ Règle du groupe : l'IA propose, nous vérifions. Aucun chiffre de ce dépôt n'
 | 7 | Maxime | simulation | La demande du 20 octobre 2026 |
 | 8 | Maxime | simulation | Le choix explicite des règles |
 | 9 | Maxime | simulation | Complément : finale, météo et reproductibilité |
-| 10 | Mohammedu | joueurs et effectif | Synthèse après analyse — exemple de formulation, pas un prompt historique |
-| 11 | Ousmane | fatigue et calendrier | Synthèse après analyse — exemple de formulation, pas un prompt historique |
-| 12 | Ousmane | forces d'attaque et de défense | Synthèse après analyse — exemple de formulation, pas un prompt historique |
-| 13 | Mohammedu | valeur des joueurs récents | Synthèse après analyse — exemple de formulation, pas un prompt historique |
-| 14 | Ousmane | bookmakers | Synthèse après analyse — exemple de formulation, pas un prompt historique |
-| 15 | Ousmane | simulation et application | Synthèse après analyse — exemple de formulation, pas un prompt historique |
+| 10 | Assistant, à la demande d'Ousmane | joueurs et effectif — rubrique prévue pour Mohammedu | Synthèse rétrospective ; exemple de formulation, pas un prompt historique |
+| 11 | Assistant, à la demande d'Ousmane | fatigue et calendrier — rubrique prévue pour Ousmane | Synthèse rétrospective ; exemple de formulation, pas un prompt historique |
+| 12 | Assistant, à la demande d'Ousmane | forces d'attaque et de défense — rubrique prévue pour Ousmane | Synthèse rétrospective ; exemple de formulation, pas un prompt historique |
+| 13 | Assistant, à la demande d'Ousmane | valeur des joueurs récents — rubrique prévue pour Mohammedu | Synthèse rétrospective ; exemple de formulation, pas un prompt historique |
+| 14 | Assistant, à la demande d'Ousmane | bookmakers — rubrique prévue pour Ousmane | Synthèse rétrospective ; exemple de formulation, pas un prompt historique |
+| 15 | Assistant, à la demande d'Ousmane | simulation et application — rubrique prévue pour Ousmane | Synthèse rétrospective ; exemple de formulation, pas un prompt historique |
 
 ---
 
@@ -188,25 +188,20 @@ L'IA a signalé des différences entre les consignes du groupe et le règlement 
 
 ## Analyse et documentation rétrospectives
 
-Cette partie documente les notebooks et l'application du projet après analyse. Le
-travail de synthèse est réparti ainsi : **Mohammedu** couvre l'analyse des joueurs et
-la valeur des joueurs récents ; **Ousmane** couvre la fatigue et le calendrier, les
-forces d'attaque et de défense, la comparaison aux bookmakers ainsi que la simulation
-et l'application. Cette répartition concerne la présente synthèse rétrospective ; elle
-n'attribue pas à l'un ou l'autre la réalisation initiale des travaux du groupe.
+À la demande d'Ousmane, l'assistant a analysé les notebooks, le README et l'application,
+puis a rédigé cette synthèse. Ousmane a précisé qu'il n'avait pas écrit de prompts
+avant cette demande. Les formulations ci-dessous sont des exemples créés après
+l'analyse par l'assistant ; aucun membre ne les a envoyés pendant le développement.
 
-Ousmane a précisé ne pas avoir rédigé de prompts avant sa demande d'aide. Les
-formulations ci-dessous sont donc des exemples préparés après l'analyse pour décrire
-les sujets et les consignes utiles ; elles ne sont pas des messages réellement envoyés
-à une IA pendant le développement. Aucune conclusion n'est tirée ici sur les prompts
-éventuellement utilisés par Mohammedu ou d'autres membres.
+La répartition demandée pour organiser les rubriques est la suivante : les joueurs et
+leur valeur récente sont prévus pour Mohammedu ; la fatigue, les forces, les
+bookmakers, la simulation et l'application sont prévus pour Ousmane. Cette répartition
+est une attribution de sujets pour la synthèse, pas la preuve que Mohammedu ou Ousmane
+a réalisé l'analyse présentée ici. Les sujets, chiffres et constats résumés ci-dessous
+proviennent des fichiers du projet. La provenance des prompts 1 à 9 déjà inscrits dans
+le document n'a pas été vérifiée dans le cadre de cette analyse.
 
-Les prompts 1 à 9 figuraient déjà dans ce document, mais leur historique n'a pas été
-vérifié dans le cadre de cette contribution. Les faits et résultats résumés plus bas
-proviennent des notebooks, du README et de l'application versionnés ; ils décrivent
-le contenu analysé sans le présenter comme du code écrit dans cette contribution.
-
-### Mohammedu — Exemple 10 : analyse des joueurs et de l'effectif
+### Rubrique prévue pour Mohammedu — Exemple 10 : joueurs et effectif
 
 **Exemple de formulation rédigé après l'analyse de `analyse/v2_joueurs.ipynb` :**
 
@@ -237,7 +232,7 @@ valeur pré-match, âge, rotation et dépendance au meilleur buteur. Le livrable
   explique comment la fournir localement au lieu de fabriquer des valeurs manquantes ;
 - les associations observées ne sont pas présentées comme des effets causaux.
 
-### Ousmane — Exemple 11 : analyse de la fatigue et de la couverture des calendriers
+### Rubrique prévue pour Ousmane — Exemple 11 : fatigue et couverture des calendriers
 
 **Exemple de formulation rédigé après l'analyse de `analyse/v2_fatigue.ipynb` :**
 
@@ -270,7 +265,7 @@ au moins un match `domestic_league` dans les données, avec l'Elo connu avant le
 
 ## Exemples de formulation après analyse des travaux v3
 
-### Ousmane — Exemple 12 : forces d'attaque et de défense
+### Rubrique prévue pour Ousmane — Exemple 12 : forces d'attaque et de défense
 
 **Exemple de formulation rédigé après l'analyse de `analyse/v2_forces.ipynb` et
 `analyse/MODEL_POISSON.ipynb` :**
@@ -297,7 +292,7 @@ format.
   signalés comme ayant des informations fragiles ;
 - les variables et performances du modèle sont évaluées par validation chronologique.
 
-### Mohammedu — Exemple 13 : valeur des joueurs récents
+### Rubrique prévue pour Mohammedu — Exemple 13 : valeur des joueurs récents
 
 **Exemple de formulation rédigé après l'analyse de `analyse/v2_forces.ipynb` et
 `analyse/MODEL_POISSON.ipynb` :**
@@ -319,7 +314,7 @@ sur les 5 derniers matchs et de valorisations antérieures au match.
 - le notebook signale les clubs dont les derniers matchs connus sont anciens ;
 - les données des participants s'arrêtent avant les transferts de l'été 2026.
 
-### Ousmane — Exemple 14 : comparaison aux bookmakers
+### Rubrique prévue pour Ousmane — Exemple 14 : comparaison aux bookmakers
 
 **Exemple de formulation rédigé après l'analyse de la section 10 bis de
 `analyse/MODEL_POISSON.ipynb` :**
@@ -349,7 +344,7 @@ est choisi sur 2018-2022 avant l'évaluation 2023-2025.
   sans prétendre que le modèle le bat significativement ; les cotes de clôture ne sont
   pas présentées comme disponibles pour simuler tous les matchs futurs d'une saison.
 
-### Ousmane — Exemple 15 : adapter la simulation et l'application au modèle v3
+### Rubrique prévue pour Ousmane — Exemple 15 : simulation et application
 
 **Exemple de formulation rédigé après l'analyse de `analyse/SIMULATION_2026.ipynb`,
 `analyse/README_SIMULATION.md` et `app/app.py` :**
