@@ -91,18 +91,12 @@ sous Python 3.12 et 3.13 ; les tests numériques et le notebook complet sous Pyt
 Une exécution native Windows et des versions identiques de NumPy/scikit-learn restent
 utiles pour comparer les résultats exacts entre les postes.
 
-## Étude météo
+## Piste étudiée puis abandonnée
 
-`ETUDE_METEO.ipynb` vérifie les fichiers locaux et produit `output/faisabilite_meteo.csv`.
-Le constat actuel est : 1 871 matchs sans heure de coup d'envoi exploitable,
-130 noms de stades distincts, aucune coordonnée ni météo dans les tables inspectées.
-Une intégration sérieuse exige une collecte des lieux réels, heures UTC et prévisions
-archivées dont la disponibilité est prouvée avant le match. Le notebook prépare le
-schéma de collecte et refuse réanalyses, prévisions publiées trop tard, fuseaux absents
-et doublons ; les tests utilisent des cas artificiels sans les exporter.
+La météo est une piste étudiée puis abandonnée.
 
-Aucun gain météo n'est encore mesuré. Les prévisions peuvent enrichir un match à
-courte échéance, mais ne donnent pas la météo de toute une saison prévue en septembre.
-Il faudrait alors des scénarios ou une climatologie connus à la date de prévision.
-Le modèle actuel conserve son contrat et ses coefficients tant qu'une validation
-chronologique sur les mêmes matchs n'a pas établi un gain.
+Deux raisons principales expliquent cet abandon :
+- **Absence de données exploitables :** nos tables ne contiennent ni heure de coup d'envoi exploitable, ni lieu ou coordonnées géographiques pour les stades ;
+- **Incompatibilité avec l'horizon de prédiction :** s'il est envisageable d'obtenir des prévisions météorologiques à court terme pour un match isolé, il est impossible de connaître la météo de toute une saison lors d'une simulation globale réalisée en septembre.
+
+Sans gain mesuré ni données fiables disponibles avant les matchs, cette piste a été écartée et le modèle conserve ses variables actuelles sans composante météo.
