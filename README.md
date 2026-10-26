@@ -41,11 +41,16 @@ CHAMPIONS-/
 │   ├── MODEL_POISSON.ipynb          # Modèle de scores retenu (Moussa)
 │   ├── AUDIT_MODELE.ipynb           # Audit « équipe rouge » du modèle de scores (Loan)
 │   ├── SIMULATION_2026.ipynb        # Simulation de la saison 2026-2027 (Maxime, voir README_SIMULATION.md)
-│   └── SIMULATION_INCERTITUDE.ipynb # Intervalles et sensibilité des probabilités de titre (Loan)
-├── notebooks/                       # Notebooks de modélisation (à venir)
+│   ├── SIMULATION_INCERTITUDE.ipynb # Intervalles et sensibilité des probabilités de titre (Loan)
+│   └── README_SIMULATION.md         # Détails et résultats de la simulation (Maxime)
+├── app/
+│   └── app.py                       # Application Streamlit : prédire un match, calendrier, simulation (Mouhamedou)
+├── tests/                           # Tests de reproductibilité de la simulation
 ├── data/                            # Datasets CSV (non versionnés, voir ci-dessous)
 ├── output/                          # CSV produits par les notebooks (non versionnés)
 ├── prompts.md                       # Prompts d'IA utilisés, avec ce qu'on a vérifié et corrigé
+├── TICKET_DE_SORTIE.md              # Les 5 réponses du ticket de sortie
+├── requirements.txt                 # Dépendances Python
 ├── .gitignore
 └── README.md
 ```
@@ -130,7 +135,7 @@ ucl = games[games["competition_id"] == "CL"].sort_values("date")
    ```bash
    python -m venv .venv
    # Windows : .venv\Scripts\activate    —    macOS / Linux : source .venv/bin/activate
-   python -m pip install pandas numpy matplotlib jupyter scikit-learn xgboost statsmodels scipy joblib
+   python -m pip install -r requirements.txt
    ```
    Dans VS Code, choisir le noyau `.venv` en haut à droite du notebook.
 3. Télécharger les datasets Kaggle et placer les CSV dans `data/`.
@@ -144,10 +149,10 @@ Les notebooks lisent les données avec des chemins relatifs (`../data/games.csv`
 ## Application
 
 L’application Streamlit utilise le modèle déjà entraîné ; elle ne réentraîne aucun modèle.
-Après avoir installé Python et créé l’environnement `.venv` comme indiqué ci-dessus :
+Après avoir installé Python, créé l’environnement `.venv` et installé `requirements.txt` comme indiqué ci-dessus
+(Streamlit en fait partie) :
 
 ```bash
-python -m pip install streamlit pandas numpy joblib matplotlib
 python -m streamlit run app/app.py
 ```
 
@@ -235,6 +240,8 @@ Les CSV de `output/` ne sont pas commités : chacun les régénère en local, da
 
 ### Audit du modèle de scores (`analyse/AUDIT_MODELE.ipynb`)
 
+*Cet audit porte sur le modèle Elo + terrain (58,6 % sur le test), qui était le modèle du groupe à ce moment-là. Le modèle v3 (forces d'attaque/défense et valeur des joueurs récents) n'a pas été réaudité : il a été choisi en validation glissante avec une règle fixée à l'avance, confirmé une seule fois sur le test, puis comparé aux bookmakers dans `MODEL_POISSON.ipynb`. Les fragilités ci-dessous restent valables pour lui.*
+
 - **Ce qui résiste :** pas de fuite par la cible (avec des scores mélangés, la log loss tombe à 1,026, au niveau « terrain seul ») ; l'Elo officiel est bien connu avant le match ; l'Elo et le terrain apportent un gain réel ; la fuite de l'Elo « maison recalé » (79 matchs, 4,2 %) n'a aucun effet mesurable ; le rejet de la forme est reproduit à l'identique ;
 - **Ce qui est fragile :** en **élimination directe** (118 matchs de test), le modèle n'est **pas démontré meilleur que le Dummy** (intervalle de −0,043 à +0,106) ; le gain du **nouveau format** n'est pas démontré (+0,0016 sur 188 matchs), et il a été choisi en regardant le test ;
 - **Ce qui reste ouvert :** à écart d'Elo égal, les matchs à Elo estimé sont bien mieux prédits que les autres, sur de petits groupes.
@@ -253,19 +260,22 @@ Les CSV de `output/` ne sont pas commités : chacun les régénère en local, da
 
 - [x] Collecte des données
 - [x] Analyse exploratoire (EDA v2 : assemblage des tableaux Elo, joueurs et fatigue fait, `output/eda_matchs_c1.csv`)
-- [ ] Nettoyage et harmonisation (scores et phases déjà corrigés dans l'EDA)
+- [x] Nettoyage et harmonisation (scores avec tirs au but et phases corrigés dans l'EDA)
 - [x] Feature engineering (forces d'attaque/défense et valeur des joueurs récents retenues, `v2_forces.ipynb` ; forme récente rejetée, `v2_forme.ipynb`)
 - [x] Entraînement des modèles (modèle de scores v3 : 60,4 % sur le test, au niveau des bookmakers, `MODEL_POISSON.ipynb` ; audit, `AUDIT_MODELE.ipynb`)
-- [ ] Prédiction 2026-2027
+- [x] Prédiction 2026-2027 (les 144 matchs de la phase de ligue, `output/predictions_phase_ligue_2026.csv`)
+- [x] Simulation de la saison (10 000 saisons, Arsenal 25,2 % de titre, `SIMULATION_2026.ipynb` ; intervalles et sensibilité, `SIMULATION_INCERTITUDE.ipynb`)
+- [x] Application (Streamlit : prédire un match avec ses 5 scores les plus probables, calendrier, simulation, `app/app.py`)
+- [x] Livrables du cours (`prompts.md`, `TICKET_DE_SORTIE.md`)
 
 ---
 
 ## 🛠️ Technologies
 
-Python · Pandas · NumPy · Matplotlib · Scikit-learn · XGBoost · Jupyter · Kaggle
+Python · Pandas · NumPy · Matplotlib · Scikit-learn · statsmodels · SciPy · XGBoost · Streamlit · Jupyter · Kaggle
 
 ---
 
 ## 👥 Auteurs
 
-Maxime, Loan, Moussa, Mouhamedou et Ousmane — septembre 2026
+Maxime, Loan, Moussa, Mouhamedou et Ousmane — septembre-octobre 2026
