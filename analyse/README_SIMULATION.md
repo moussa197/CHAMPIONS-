@@ -1,0 +1,102 @@
+# Simulation 2026-2027 — Maxime
+
+Branche : `feature/simulation`, créée depuis `develop` à jour puis enrichie de
+`feature/model-baseline`, qui contient `MODEL_POISSON.ipynb` (première récupération : `65741bd`).
+Les notebooks des autres membres ne sont pas modifiés.
+
+**Mise à jour du 21 octobre 2026 : modèle v3.** La simulation utilise maintenant la version 3
+de `MODEL_POISSON` (branche `feature/model-v3`). En plus de l'écart d'Elo, du terrain et du
+format, chaque match tient compte de la force d'attaque de chaque club face à la défense
+adverse et de l'écart de valeur des joueurs récents (`output/forces_participants_2026.csv`,
+produit par `v2_forces`). Ces forces restent figées pendant la saison simulée ; seul l'Elo évolue.
+Les backtests réentraînent ce même modèle sur les saisons antérieures.
+
+## Lancer
+
+1. Générer les entrées en exécutant, depuis `analyse/`, les notebooks
+   `v2_elo`, `v2_joueurs`, `v2_fatigue`, `v2_participants`, `EDA_v2`, `v2_forces`, puis `MODEL_POISSON`.
+2. Ouvrir `SIMULATION_2026.ipynb`, puis **Kernel → Restart & Run All**.
+
+La simulation utilise `numpy`, `pandas`, `matplotlib`, `joblib` et `scikit-learn`.
+Le notebook du modèle nécessite aussi `statsmodels`.
+La graine est 2026 : 10 000 saisons cibles, 10 000 par backtest, puis une comparaison
+avec l'Elo figé. Les sorties ne sont pas versionnées ; chacun les régénère localement.
+
+## Livrables dans output/
+
+- `resultats_simulation_2026.csv` : 36 clubs, points moyens, probabilités de chaque tour
+  et marges de Monte-Carlo. `p_…` est entre 0 et 1 ; `pct_…` entre 0 et 100.
+- `finales_probables_2026.csv` : les paires de finalistes et leurs fréquences.
+- `seuils_simulation_2026.csv` : distribution des points du 8e et du 24e.
+- `backtest_simulation_2026.csv` : Brier par tour et nombre de quart-de-finalistes
+  parmi les huit favoris pour 2024-2025 et 2025-2026.
+- `simulation_2026_metadata.json` : graine, paramètres, provenance et empreintes des entrées.
+- `finale_c1_2026_uefa.csv` : complément UEFA versionné dans le notebook, utilisé seulement
+  pour l'évaluation historique ; score de 1-1 séparé de la victoire parisienne aux tirs au but.
+
+L'application peut joindre les résultats avec ses clubs via `club_id`.
+`pct_barrages` signifie finir entre la 9e et la 24e place ; `pct_huitiemes` inclut
+les qualifiés directs et les vainqueurs des barrages.
+
+## Résultats de l'exécution de référence
+
+Avec le modèle v3 (exécution du 21 octobre 2026) : Arsenal 25,24 % de titre,
+Bayern 14,87 %, Manchester City 13,90 %, Barcelone 12,49 %. La marge normale de Monte-Carlo
+du favori est d'environ ±0,85 point de pourcentage. Paris obtient 45,11 % de top 8.
+Avec l'ancien modèle (Elo seul) : Arsenal 23,30 %, Manchester City 14,96 %, Bayern 12,40 %.
+Ces chiffres sont calculés, pas recopiés depuis les repères du document.
+
+Le backtest retrouve 5 des 8 quart-de-finalistes en 2024-2025 et 6 sur 8 en 2025-2026.
+Le Brier des quarts vaut 0,1122 puis 0,0914, contre 0,1728 pour l'uniforme : c'est mieux
+qu'avec l'ancien modèle (0,1158 et 0,0993), tout comme les huitièmes.
+Le Brier du titre 2024-2025 est moins bon que la baseline : 0,0302 contre 0,0270.
+La finale du 30 mai 2026 est maintenant ajoutée depuis le
+[compte rendu UEFA](https://fr.uefa.com/uefachampionsleague/news/02a5-20c0308e844d-63210800ee1f-1000--paris-conserve-la-champions-league-aux-tirs-au-but-face-a-ar/)
+: Paris–Arsenal 1-1, puis 4-3 aux tirs au but. Le Brier du titre 2025-2026 vaut
+0,0265 contre 0,0270 pour l'uniforme (0,0239 avec l'ancien modèle) : sur la finale et le
+titre, deux saisons ne suffisent pas à départager les deux modèles. Ce complément ne modifie ni les CSV historiques
+du groupe ni l'apprentissage des backtests. Le modèle de production n'est pas
+réentraîné avec la finale ; ses probabilités 2026-2027 restent donc inchangées.
+
+## Limites à expliquer
+
+Les règles suivent les consignes du groupe : dernier départage aléatoire et retour
+chez le club au meilleur rang de ligue à chaque tour. Le notebook cite les différences
+avec les articles 18 et 19 UEFA ; ce n'est pas une reproduction exacte du règlement.
+
+Les modèles des backtests sont réentraînés sur le passé. Les 81 lignes club-match
+recalées avec toute leur saison sont corrigées dans une copie de travail, avec les
+seules observations de dates antérieures. Les constantes Elo du groupe et les choix
+de modèle restent rétrospectifs : deux saisons ne constituent pas un test aveugle
+indépendant. L'erreur de Monte-Carlo ne mesure pas l'erreur du modèle.
+
+Les blessures, transferts et matchs nationaux futurs ne sont pas simulés. Les buts
+des équipes sont indépendants ; la prolongation conserve une cadence de buts
+proportionnelle au temps. Les tests du notebook tentent de casser les règles de
+classement, le tableau, les prolongations, les tirs au but et les mises à jour Elo.
+
+## Mac, Windows et versions de Python
+
+Les lectures de notebooks et l'écriture JSON précisent `encoding='utf-8'` : elles
+ne dépendent plus de l'encodage cp1252 par défaut de certains Windows.
+L'empreinte figée de `ast.dump` a été retirée : le même code n'a pas la même
+représentation sous Python 3.12 et 3.13. Le nouveau contrôle lit les fonctions
+dans le même interpréteur et compare leurs résultats sur 564 cas (282 sans les forces, 282 avec), y compris
+les scores tirés avec des graines identiques. Une vraie divergence numérique est refusée.
+
+Depuis la racine, lancer les régressions avec `python3 -m unittest discover -s tests -v`
+sur Mac, ou `py -m unittest discover -s tests -v` sous Windows. Le test de lecture
+émule cp1252 et les fins de ligne Windows. Les tests de structure ont été exécutés
+sous Python 3.12 et 3.13 ; les tests numériques et le notebook complet sous Python 3.12.
+Une exécution native Windows et des versions identiques de NumPy/scikit-learn restent
+utiles pour comparer les résultats exacts entre les postes.
+
+## Piste étudiée puis abandonnée
+
+La météo est une piste étudiée puis abandonnée.
+
+Deux raisons principales expliquent cet abandon :
+- **Absence de données exploitables :** nos tables ne contiennent ni heure de coup d'envoi exploitable, ni lieu ou coordonnées géographiques pour les stades ;
+- **Incompatibilité avec l'horizon de prédiction :** s'il est envisageable d'obtenir des prévisions météorologiques à court terme pour un match isolé, il est impossible de connaître la météo de toute une saison lors d'une simulation globale réalisée en septembre.
+
+Sans gain mesuré ni données fiables disponibles avant les matchs, cette piste a été écartée et le modèle conserve ses variables actuelles sans composante météo.

@@ -5,6 +5,9 @@
 __pycache__/
 *.pyc
 
+# Ignorer l'environnement virtuel
+.venv/
+
 # Ignorer Jupyter
 .ipynb_checkpoints/
 
