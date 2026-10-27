@@ -366,7 +366,6 @@ def _charger_modele_requis() -> Any | None:
 
 
 def _afficher_page_prediction() -> None:
-    st.header("Prédire un match")
     calendrier = _charger_csv_requis("calendrier")
     elo = _charger_csv_requis("elo")
     forces = _charger_csv_requis("forces")
@@ -387,6 +386,11 @@ def _afficher_page_prediction() -> None:
         st.error(verification)
         return
     st.success(verification)
+    # Les probabilités s'affichent tout en haut ; elles sont remplies une fois les clubs choisis plus bas
+    zone_probas = st.container()
+    # Le titre est placé avec ce qu'il désigne : le choix du match à prédire
+    st.header("Prédire un match")
+    st.caption("Choisissez les deux clubs et le terrain : les probabilités ci-dessus se mettent à jour.")
     clubs = calendrier[["club_id", "nom_uefa"]].drop_duplicates().sort_values("nom_uefa")
     noms = clubs["nom_uefa"].tolist()
     col_dom, col_ext = st.columns(2)
@@ -420,19 +424,21 @@ def _afficher_page_prediction() -> None:
         st.error(f"Le modèle ne peut pas prédire ce match : {erreur}")
         return
 
-    col_dom.metric(f"Buts attendus — {domicile}", f"{buts_dom:.2f}")
-    col_ext.metric(f"Buts attendus — {exterieur}", f"{buts_ext:.2f}")
-
-    st.subheader("Probabilités du résultat")
+    zone_probas.subheader(f"Probabilités du résultat : {domicile} – {exterieur}")
     issues = {
         f"Victoire {domicile}": probas["Victoire domicile"],
         "Match nul": probas["Nul"],
         f"Victoire {exterieur}": probas["Victoire extérieur"],
     }
     # Chaque barre est sous son propre chiffre, dans le même ordre : domicile, nul, extérieur
-    for colonne, (issue, proba) in zip(st.columns(3), issues.items()):
+    for colonne, (issue, proba) in zip(zone_probas.columns(3), issues.items()):
         colonne.metric(issue, f"{proba:.0%}")
         colonne.progress(proba)
+
+    st.subheader("Buts attendus")
+    col_buts_dom, col_buts_ext = st.columns(2)
+    col_buts_dom.metric(domicile, f"{buts_dom:.2f}")
+    col_buts_ext.metric(exterieur, f"{buts_ext:.2f}")
 
     st.subheader("Les 5 scores les plus probables")
     top5 = pd.DataFrame(
