@@ -429,9 +429,10 @@ def _afficher_page_prediction() -> None:
         "Match nul": probas["Nul"],
         f"Victoire {exterieur}": probas["Victoire extérieur"],
     }
+    # Chaque barre est sous son propre chiffre, dans le même ordre : domicile, nul, extérieur
     for colonne, (issue, proba) in zip(st.columns(3), issues.items()):
         colonne.metric(issue, f"{proba:.0%}")
-    st.bar_chart(pd.DataFrame({"Probabilité": list(issues.values())}, index=list(issues)))
+        colonne.progress(proba)
 
     st.subheader("Les 5 scores les plus probables")
     top5 = pd.DataFrame(
