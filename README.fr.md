@@ -1,6 +1,6 @@
 # 🏆 Prédiction du vainqueur de la Ligue des Champions
 
-🇬🇧 *English summary, results and live demo: [README.md](README.md)*
+🇬🇧 *English summary and results: [README.md](README.md)* · ▶ **Application en ligne : [champions.streamlit.app](https://champions.streamlit.app/)**
 
 Projet de data science qui analyse l'historique de la Ligue des Champions (UEFA Champions League) et utilise le machine learning pour estimer la probabilité de victoire finale de chaque club engagé sur la saison **2026-2027**.
 
