@@ -3,10 +3,11 @@
 [![tests](https://github.com/moussa197/CHAMPIONS-/actions/workflows/tests.yml/badge.svg)](https://github.com/moussa197/CHAMPIONS-/actions/workflows/tests.yml)
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://champions.streamlit.app/)
 
 A data science project that predicts the score of every UEFA Champions League match, then simulates the whole 2026-27 season **10,000 times** to estimate each of the 36 clubs' chances of winning the title, before the competition starts.
 
-**▶ Live demo:** _add the Streamlit link here after deployment_
+**▶ Live demo: [champions.streamlit.app](https://champions.streamlit.app/)**
 **🇫🇷 Full documentation in French:** [README.fr.md](README.fr.md)
 
 ---
