@@ -11,5 +11,11 @@ __pycache__/
 # Ignorer Jupyter
 .ipynb_checkpoints/
 
-# Ignorer output
-output/
+# Ignorer output, sauf les 6 petits fichiers que lit l'application déployée
+output/*
+!output/elo_participants_2026.csv
+!output/calendrier_2026.csv
+!output/forces_participants_2026.csv
+!output/predictions_phase_ligue_2026.csv
+!output/resultats_simulation_2026.csv
+!output/modele_scores.joblib

@@ -1,0 +1,37 @@
+club,club_id,elo_global,elo_c1,elo_champ,nb_matchs,nb_matchs_c1,elo_complet,source_elo
+Arsenal FC,11,1946.0,1683.0,1783.0,733,78,2025,officiel
+Manchester City,281,1914.0,1679.0,1763.0,764,139,1989,officiel
+Bayern Munich,27,2009.0,1767.0,1840.0,724,160,1972,officiel
+FC Barcelona,131,1967.0,1670.0,1806.0,800,142,1970,officiel
+Inter Milan,46,1871.0,1634.0,1813.0,703,72,1943,officiel
+Real Madrid,418,1913.0,1723.0,1772.0,809,170,1932,officiel
+Paris Saint-Germain,583,1888.0,1712.0,1789.0,678,148,1920,officiel
+Liverpool FC,31,1804.0,1674.0,1674.0,728,93,1895,officiel
+Manchester United,985,1808.0,1520.0,1667.0,731,62,1889,officiel
+Aston Villa,405,1825.0,1554.0,1655.0,489,12,1860,officiel
+Borussia Dortmund,16,1829.0,1598.0,1712.0,693,124,1847,officiel
+Associazione Sportiva Roma,12,1778.0,1520.0,1708.0,702,34,1834,officiel
+SSC Napoli,6195,1785.0,1555.0,1729.0,697,60,1831,officiel
+Atlético de Madrid,13,1813.0,1599.0,1658.0,769,131,1816,officiel
+PSV Eindhoven,383,1843.0,1503.0,1833.0,664,48,1799,officiel
+Sporting CP,336,1838.0,1523.0,1867.0,640,54,1796,officiel
+LOSC Lille,1082,1706.0,1498.0,1667.0,591,30,1789,officiel
+Villarreal CF,1050,1753.0,1477.0,1655.0,658,20,1781,officiel
+Como 1907,1047,1729.0,,1662.0,93,0,1781,officiel
+FC Porto,720,1812.0,1587.0,1839.0,663,88,1770,officiel
+RB Leipzig,23826,1776.0,1516.0,1656.0,467,54,1766,officiel
+Real Betis Balompié,150,1771.0,,1620.0,630,0,1763,officiel
+RC Lens,826,1706.0,1500.0,1670.0,264,6,1762,officiel
+VfB Stuttgart,79,1779.0,1496.0,1646.0,493,8,1758,officiel
+Club Brugge KV,2282,1795.0,1485.0,1716.0,582,60,1738,officiel
+Galatasaray,141,1791.0,1457.0,1846.0,597,60,1675,officiel
+Feyenoord Rotterdam,234,1721.0,1479.0,1719.0,629,24,1675,officiel
+Fenerbahce,36,1771.0,,1816.0,626,0,1658,officiel
+Athlitiki Enosi Konstantinoupoleos,2441,1788.0,1449.0,1791.0,489,6,1614,officiel
+Fotballklubben Bodø/Glimt,501,1757.0,1531.0,1645.0,130,12,1613,officiel
+FC Shakhtar Donetsk,660,1774.0,1468.0,1821.0,582,80,1597,estimé (résultats)
+Viking Fotballklubb,239,1709.0,,1681.0,51,0,1520,officiel
+Sabah FK,63993,1510.0,,,14,0,1506,estimé (Elo maison recalé)
+SK Slavia Prague,62,1744.0,1444.0,1716.0,169,14,1480,estimé (résultats)
+LASK,413,1657.0,,1610.0,114,0,1458,officiel
+Slovan Bratislava,540,1538.0,1434.0,,125,8,1381,estimé (résultats)
